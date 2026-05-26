@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "playercontrolpp",
+  "version": "${version}",
+  "name": "PlayerControlpp",
+  "description": "A lightweight client-side mod that enhances player controls with auto-forward, quick-turn, and an extensible action system.",
+  "authors": ["Alonediamond"],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/playercontrolpp/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.alonediamond.playercontrolpp.client.PlayercontrolppClient"
+    ],
+    "main": [
+      "com.alonediamond.playercontrolpp.Playercontrolpp"
+    ],
+    "modmenu": [
+      "com.alonediamond.playercontrolpp.gui.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "playercontrolpp.mixins.json",
+    {
+      "config": "playercontrolpp.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}",
+    "malilib": ">=0.23.5"
+  },
+  "suggests": {
+    "modmenu": ">=13.0.3"
+  }
+}
