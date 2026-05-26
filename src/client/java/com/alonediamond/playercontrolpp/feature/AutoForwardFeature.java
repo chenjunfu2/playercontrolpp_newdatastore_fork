@@ -1,6 +1,5 @@
 package com.alonediamond.playercontrolpp.feature;
 
-import com.alonediamond.playercontrolpp.action.MoveForwardAction;
 import com.alonediamond.playercontrolpp.util.MessageUtil;
 import net.minecraft.client.MinecraftClient;
 
@@ -14,13 +13,9 @@ public class AutoForwardFeature {
 
     public static void toggle(MinecraftClient client) {
         enabled = !enabled;
-        MessageUtil.sendActionBar(client, "Auto Forward: " + (enabled ? "ON" : "OFF"));
-    }
-
-    public static void tick(MinecraftClient client) {
-        if (enabled && client.player != null) {
-            MoveForwardAction.apply(client);
-        }
+        MessageUtil.sendActionBar(client, enabled
+                ? "playercontrolpp.message.auto_forward.on"
+                : "playercontrolpp.message.auto_forward.off");
     }
 
     public static void onWorldChange() {
@@ -28,7 +23,7 @@ public class AutoForwardFeature {
             enabled = false;
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.player != null) {
-                MessageUtil.sendActionBar(client, "Auto Forward: OFF (world changed)");
+                MessageUtil.sendActionBar(client, "playercontrolpp.message.auto_forward.world_change");
             }
         }
     }

@@ -4,7 +4,7 @@
   "package": "com.alonediamond.playercontrolpp.mixin.client",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "MixinClientPlayerEntity"
+    "MixinKeyboardInput"
   ],
   "injectors": {
     "defaultRequire": 1
