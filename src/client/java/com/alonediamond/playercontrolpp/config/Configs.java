@@ -23,6 +23,11 @@ public class Configs implements IConfigHandler {
     private static final int CONFIG_VERSION = 1;
 
     public static class Hotkeys {
+        public static final ConfigHotkey OPEN_CONFIG_GUI = new ConfigHotkey(
+                "openConfigGui", "P,C",
+                KeybindSettings.PRESS_ALLOWEXTRA)
+                .apply("playercontrolpp.config.hotkeys");
+
         public static final ConfigHotkey AUTO_FORWARD = new ConfigHotkey(
                 "autoForward", "",
                 KeybindSettings.PRESS_ALLOWEXTRA)
@@ -39,10 +44,10 @@ public class Configs implements IConfigHandler {
                 .apply("playercontrolpp.config.hotkeys");
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
-                AUTO_FORWARD, QUICK_TURN, OPEN_ROUTE_GUI);
+                OPEN_CONFIG_GUI, AUTO_FORWARD, QUICK_TURN, OPEN_ROUTE_GUI);
 
         public static final List<IHotkey> HOTKEY_LIST = ImmutableList.of(
-                AUTO_FORWARD, QUICK_TURN, OPEN_ROUTE_GUI);
+                OPEN_CONFIG_GUI, AUTO_FORWARD, QUICK_TURN, OPEN_ROUTE_GUI);
     }
 
     public static class Settings {

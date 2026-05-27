@@ -17,6 +17,10 @@
   "playercontrolpp.config.settings.pretty_name.turnAngle": "转向角度",
   "playercontrolpp.config.settings.comment.turnAngle": "快速转向的角度（度）。常用值：90、180、270。",
 
+  "playercontrolpp.config.hotkeys.name.openConfigGui": "打开配置界面",
+  "playercontrolpp.config.hotkeys.pretty_name.openConfigGui": "打开配置界面",
+  "playercontrolpp.config.hotkeys.comment.openConfigGui": "打开 PlayerControl++ 配置界面。默认按键：P + C。",
+
   "playercontrolpp.config.hotkeys.name.openRouteGui": "打开路径界面",
   "playercontrolpp.config.hotkeys.pretty_name.openRouteGui": "打开路径界面",
   "playercontrolpp.config.hotkeys.comment.openRouteGui": "打开路径流系统配置界面。",
@@ -43,6 +47,7 @@
   "playercontrolpp.gui.route.node_end": "终点",
   "playercontrolpp.gui.route.node_mid": "节点",
   "playercontrolpp.gui.route.set_current": "设为当前",
+  "playercontrolpp.gui.route.add_node": "添加节点",
   "playercontrolpp.gui.route.arrival_radius": "到达半径",
   "playercontrolpp.gui.route.loop_count": "循环次数",
   "playercontrolpp.gui.route.no_selection": "请在左侧选择一个路径进行编辑。"

@@ -17,6 +17,10 @@
   "playercontrolpp.config.settings.pretty_name.turnAngle": "Turn Angle",
   "playercontrolpp.config.settings.comment.turnAngle": "Turn angle in degrees for Quick Turn. Common values: 90, 180, 270.",
 
+  "playercontrolpp.config.hotkeys.name.openConfigGui": "Open Config GUI",
+  "playercontrolpp.config.hotkeys.pretty_name.openConfigGui": "Open Config GUI",
+  "playercontrolpp.config.hotkeys.comment.openConfigGui": "Open the PlayerControl++ configuration GUI. Default: P + C.",
+
   "playercontrolpp.config.hotkeys.name.openRouteGui": "Open Route GUI",
   "playercontrolpp.config.hotkeys.pretty_name.openRouteGui": "Open Route GUI",
   "playercontrolpp.config.hotkeys.comment.openRouteGui": "Open the Route Flow System configuration GUI.",
@@ -43,6 +47,7 @@
   "playercontrolpp.gui.route.node_end": "End",
   "playercontrolpp.gui.route.node_mid": "Node",
   "playercontrolpp.gui.route.set_current": "Set",
+  "playercontrolpp.gui.route.add_node": "Add Node",
   "playercontrolpp.gui.route.arrival_radius": "Arrival Radius",
   "playercontrolpp.gui.route.loop_count": "Loop Count",
   "playercontrolpp.gui.route.no_selection": "Select a route on the left to edit."

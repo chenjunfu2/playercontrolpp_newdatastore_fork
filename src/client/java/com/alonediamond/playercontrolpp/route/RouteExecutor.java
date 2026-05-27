@@ -229,6 +229,12 @@ public class RouteExecutor {
         stuckTicks = 0;
         postJumpTicks = 0;
         jumpRequested = false;
+
+        // Snap yaw immediately to face the next target to avoid getting stuck on turns
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player != null) {
+            snapYawToTarget(client, currentTarget);
+        }
     }
 
     public boolean needsJump() { return jumpRequested; }
