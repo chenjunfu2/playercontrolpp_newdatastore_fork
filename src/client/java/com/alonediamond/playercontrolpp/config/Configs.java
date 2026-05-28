@@ -38,28 +38,16 @@ public class Configs implements IConfigHandler {
                 KeybindSettings.PRESS_ALLOWEXTRA)
                 .apply("playercontrolpp.config.hotkeys");
 
-        public static final ConfigHotkey OPEN_ROUTE_GUI = new ConfigHotkey(
-                "openRouteGui", "",
-                KeybindSettings.PRESS_ALLOWEXTRA)
-                .apply("playercontrolpp.config.hotkeys");
-
         public static final ConfigHotkey RECORDING_TOGGLE = new ConfigHotkey(
                 "recordingToggle", "",
                 KeybindSettings.PRESS_ALLOWEXTRA)
                 .apply("playercontrolpp.config.hotkeys");
 
-        public static final ConfigHotkey OPEN_RECORDING_GUI = new ConfigHotkey(
-                "openRecordingGui", "",
-                KeybindSettings.PRESS_ALLOWEXTRA)
-                .apply("playercontrolpp.config.hotkeys");
-
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
-                OPEN_CONFIG_GUI, AUTO_FORWARD, QUICK_TURN, OPEN_ROUTE_GUI,
-                RECORDING_TOGGLE, OPEN_RECORDING_GUI);
+                OPEN_CONFIG_GUI, AUTO_FORWARD, QUICK_TURN, RECORDING_TOGGLE);
 
         public static final List<IHotkey> HOTKEY_LIST = ImmutableList.of(
-                OPEN_CONFIG_GUI, AUTO_FORWARD, QUICK_TURN, OPEN_ROUTE_GUI,
-                RECORDING_TOGGLE, OPEN_RECORDING_GUI);
+                OPEN_CONFIG_GUI, AUTO_FORWARD, QUICK_TURN, RECORDING_TOGGLE);
     }
 
     public static class Settings {

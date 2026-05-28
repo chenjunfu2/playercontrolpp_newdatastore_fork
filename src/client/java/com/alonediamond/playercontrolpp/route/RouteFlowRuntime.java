@@ -1,6 +1,5 @@
 package com.alonediamond.playercontrolpp.route;
 
-import com.alonediamond.playercontrolpp.config.Configs;
 import com.alonediamond.playercontrolpp.integration.LitematicaIntegration;
 import com.alonediamond.playercontrolpp.util.MessageUtil;
 import net.minecraft.client.MinecraftClient;
@@ -110,9 +109,9 @@ public class RouteFlowRuntime {
             switch (executor.getState()) {
                 case COMPLETED:
                     MessageUtil.sendActionBar(client, "playercontrolpp.message.route.completed");
-                    // Auto-increment Litematica render layer on route completion
+                    // Auto-increment Litematica render layer using route's per-route setting
                     LitematicaIntegration.incrementLayer(
-                            Configs.Settings.LAYER_INCREMENT.getIntegerValue());
+                            executor.getRoute().getLayerIncrement());
                     toRemove.add(entry.getKey());
                     break;
                 case FAILED:

@@ -26,17 +26,9 @@
   "playercontrolpp.config.hotkeys.pretty_name.openConfigGui": "打开配置界面",
   "playercontrolpp.config.hotkeys.comment.openConfigGui": "打开配置界面。默认：P + C。",
 
-  "playercontrolpp.config.hotkeys.name.openRouteGui": "打开路径界面",
-  "playercontrolpp.config.hotkeys.pretty_name.openRouteGui": "打开路径界面",
-  "playercontrolpp.config.hotkeys.comment.openRouteGui": "打开路径流系统配置。",
-
   "playercontrolpp.config.hotkeys.name.recordingToggle": "切换录制",
   "playercontrolpp.config.hotkeys.pretty_name.recordingToggle": "切换录制",
   "playercontrolpp.config.hotkeys.comment.recordingToggle": "开始/停止输入录制。",
-
-  "playercontrolpp.config.hotkeys.name.openRecordingGui": "打开录制界面",
-  "playercontrolpp.config.hotkeys.pretty_name.openRecordingGui": "打开录制界面",
-  "playercontrolpp.config.hotkeys.comment.openRecordingGui": "打开录制与回放界面。",
 
   "playercontrolpp.message.auto_forward.on": "[PlayerControl++] 自动前进：开",
   "playercontrolpp.message.auto_forward.off": "[PlayerControl++] 自动前进：关",
@@ -54,6 +46,7 @@
   "playercontrolpp.message.playback.started": "[PlayerControl++] 回放已开始",
   "playercontrolpp.message.playback.stopped": "[PlayerControl++] 回放已停止",
   "playercontrolpp.message.playback.completed": "[PlayerControl++] 回放已完成",
+  "playercontrolpp.message.playback.walking": "[PlayerControl++] 正在走向起点...",
 
   "playercontrolpp.message.litematica.layer": "[PlayerControl++] 渲染层：%s",
 
@@ -71,6 +64,7 @@
   "playercontrolpp.gui.route.add_node": "添加节点",
   "playercontrolpp.gui.route.arrival_radius": "到达半径",
   "playercontrolpp.gui.route.loop_count": "循环次数",
+  "playercontrolpp.gui.route.layer_increment": "图层增量",
   "playercontrolpp.gui.route.no_selection": "请在左侧选择一个路径进行编辑。",
 
   "playercontrolpp.gui.recording.title": "录制与回放",

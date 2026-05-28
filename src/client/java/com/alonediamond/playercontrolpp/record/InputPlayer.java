@@ -7,16 +7,17 @@ import net.minecraft.util.math.MathHelper;
 
 public class InputPlayer {
 
-    public enum State { IDLE, PLAYING, COMPLETED }
+    public enum State { IDLE, MOVING_TO_START, PLAYING, COMPLETED }
+
+    private static final double ARRIVAL_SQ = 0.25; // 0.5 blocks
 
     private RecordingFile recording;
     private State state = State.IDLE;
     private int frameIndex;
-    private int playCount;       // configured play count
-    private int currentPlay;     // current play number (0-based)
+    private int playCount;
+    private int currentPlay;
     private RecordedFrame currentFrame;
 
-    // Cached playback input for the current frame (read by mixin)
     private float playForward;
     private float playSideways;
     private boolean playJump;
@@ -27,9 +28,8 @@ public class InputPlayer {
     private float playPitch;
 
     public State getState() { return state; }
-    public boolean isPlaying() { return state == State.PLAYING; }
+    public boolean isPlaying() { return state == State.PLAYING || state == State.MOVING_TO_START; }
 
-    // Current-frame input getters (read by MixinKeyboardInput)
     public float getForward() { return playForward; }
     public float getSideways() { return playSideways; }
     public boolean getJump() { return playJump; }
@@ -50,15 +50,43 @@ public class InputPlayer {
         this.playCount = playCount;
         this.currentPlay = 0;
         this.frameIndex = 0;
-        this.state = State.PLAYING;
+        beginWalkingToStart(client);
+    }
+
+    private void beginWalkingToStart(MinecraftClient client) {
+        ClientPlayerEntity player = client.player;
+        if (player == null || recording == null) return;
+
+        // Check if already at start
+        double dx = recording.getStartX() - player.getX();
+        double dz = recording.getStartZ() - player.getZ();
+        if (dx * dx + dz * dz <= ARRIVAL_SQ) {
+            beginPlayback(client);
+            return;
+        }
+
+        state = State.MOVING_TO_START;
+        playForward = 1.0f;
+        playSideways = 0;
+        playJump = false;
+        playSneak = false;
+        playLeftClick = false;
+        playRightClick = false;
+        MessageUtil.sendActionBar(client, "playercontrolpp.message.playback.walking");
+    }
+
+    private void beginPlayback(MinecraftClient client) {
+        ClientPlayerEntity player = client.player;
+        if (player == null) return;
+
+        state = State.PLAYING;
+        playForward = 0;
+        playSideways = 0;
+        frameIndex = 0;
         loadFrame(0);
-
-        // Teleport to recording start position for first play
-        player.setPosition(rec.getStartX(), rec.getStartY(), rec.getStartZ());
-        player.setYaw(rec.getStartYaw());
-        player.setHeadYaw(rec.getStartYaw());
-        player.setPitch(rec.getStartPitch());
-
+        player.setYaw(recording.getStartYaw());
+        player.setHeadYaw(recording.getStartYaw());
+        player.setPitch(recording.getStartPitch());
         MessageUtil.sendActionBar(client, "playercontrolpp.message.playback.started");
     }
 
@@ -78,28 +106,44 @@ public class InputPlayer {
     }
 
     public void tick(MinecraftClient client) {
-        if (state != State.PLAYING) return;
-
         ClientPlayerEntity player = client.player;
         if (player == null || recording == null) {
             state = State.IDLE;
             return;
         }
 
+        if (state == State.MOVING_TO_START) {
+            // Walk toward start position using input simulation
+            double dx = recording.getStartX() - player.getX();
+            double dz = recording.getStartZ() - player.getZ();
+            double distSq = dx * dx + dz * dz;
+
+            if (distSq <= ARRIVAL_SQ) {
+                beginPlayback(client);
+                return;
+            }
+
+            // Steer toward target
+            float targetYaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
+            playYaw = MathHelper.wrapDegrees(targetYaw);
+            playPitch = 0;
+            playForward = 1.0f;
+            playSideways = 0;
+            playJump = false;
+            playSneak = false;
+            playLeftClick = false;
+            playRightClick = false;
+            return;
+        }
+
+        if (state != State.PLAYING) return;
+
         // Advance frame
         frameIndex++;
         if (frameIndex >= recording.getFrames().size()) {
-            // Completed one playback
             currentPlay++;
             if (playCount == 0 || currentPlay < playCount) {
-                // Restart: teleport back to start
-                player.setPosition(
-                        recording.getStartX(), recording.getStartY(), recording.getStartZ());
-                player.setYaw(recording.getStartYaw());
-                player.setHeadYaw(recording.getStartYaw());
-                player.setPitch(recording.getStartPitch());
-                frameIndex = 0;
-                loadFrame(0);
+                beginWalkingToStart(client);
             } else {
                 state = State.COMPLETED;
                 playForward = 0;
@@ -130,11 +174,16 @@ public class InputPlayer {
         this.playPitch = f.pitch;
     }
 
-    /**
-     * Apply yaw/pitch from the current frame to the player entity.
-     * Handled separately from keyboard input since yaw is not keyboard-based.
-     */
     public void applyYaw(MinecraftClient client) {
+        if (state == State.MOVING_TO_START) {
+            ClientPlayerEntity player = client.player;
+            if (player != null && recording != null) {
+                // During walk-to-start, yaw is set directly
+                player.setYaw(MathHelper.wrapDegrees(playYaw));
+                player.setHeadYaw(MathHelper.wrapDegrees(playYaw));
+            }
+            return;
+        }
         if (state != State.PLAYING) return;
         ClientPlayerEntity player = client.player;
         if (player == null || currentFrame == null) return;

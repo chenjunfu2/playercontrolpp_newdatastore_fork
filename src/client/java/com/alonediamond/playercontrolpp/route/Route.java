@@ -20,6 +20,7 @@ public class Route {
     private String dimensionId;
     private double arrivalRadius;
     private int loopCount;
+    private int layerIncrement;
     private ConfigHotkey hotkey;
 
     public Route(String name) {
@@ -41,6 +42,7 @@ public class Route {
         this.dimensionId = "";
         this.arrivalRadius = 1.0;
         this.loopCount = 1;
+        this.layerIncrement = 1;
         this.hotkey = new ConfigHotkey("route_" + this.id, "",
                 KeybindSettings.PRESS_ALLOWEXTRA,
                 "Hotkey for route: " + name,
@@ -89,6 +91,9 @@ public class Route {
     public int getLoopCount() { return loopCount; }
     public void setLoopCount(int loopCount) { this.loopCount = Math.max(0, loopCount); }
 
+    public int getLayerIncrement() { return layerIncrement; }
+    public void setLayerIncrement(int layerIncrement) { this.layerIncrement = Math.max(1, layerIncrement); }
+
     public ConfigHotkey getHotkey() { return hotkey; }
 
     /**
@@ -113,6 +118,7 @@ public class Route {
         obj.addProperty("dimensionId", dimensionId);
         obj.addProperty("arrivalRadius", arrivalRadius);
         obj.addProperty("loopCount", loopCount);
+        obj.addProperty("layerIncrement", layerIncrement);
 
         JsonArray nodesArr = new JsonArray();
         for (RouteNode node : nodes) {
@@ -134,6 +140,7 @@ public class Route {
         if (obj.has("dimensionId")) route.dimensionId = obj.get("dimensionId").getAsString();
         if (obj.has("arrivalRadius")) route.setArrivalRadius(obj.get("arrivalRadius").getAsDouble());
         if (obj.has("loopCount")) route.setLoopCount(obj.get("loopCount").getAsInt());
+        if (obj.has("layerIncrement")) route.setLayerIncrement(obj.get("layerIncrement").getAsInt());
 
         if (obj.has("nodes")) {
             JsonArray nodesArr = obj.getAsJsonArray("nodes");

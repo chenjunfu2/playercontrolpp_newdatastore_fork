@@ -22,6 +22,10 @@ public class RouteListGui extends Screen {
     private static final int RIGHT_X = 200;
     private static final int LEFT_ITEM_H = 20;
     private static final int WPT_ROW_H = 24;
+    // Waypoint field layout: only X and Z (Y is ignored)
+    private static final int FIELD_X = RIGHT_X + 50;
+    private static final int FIELD_W = 62;
+    private static final int FIELD_GAP = 12;
 
     private final Screen parent;
     private Route selectedRoute;
@@ -32,9 +36,8 @@ public class RouteListGui extends Screen {
     private final List<WaypointFields> waypointFields = new ArrayList<>();
     private TextFieldWidget radiusField;
     private TextFieldWidget loopField;
+    private TextFieldWidget layerIncField;
     private boolean dirty;
-
-    // Pre-computed hit areas for waypoint buttons (per-frame, for click detection)
     private final List<WptHitArea> wptHitAreas = new ArrayList<>();
 
     public RouteListGui(Screen parent) {
@@ -44,9 +47,7 @@ public class RouteListGui extends Screen {
 
     @Override
     public void close() {
-        if (dirty) {
-            RouteManager.getInstance().saveRoutes();
-        }
+        if (dirty) RouteManager.getInstance().saveRoutes();
         if (parent != null) {
             MinecraftClient.getInstance().setScreen(parent);
         } else {
@@ -62,7 +63,7 @@ public class RouteListGui extends Screen {
         this.waypointFields.clear();
         this.wptHitAreas.clear();
 
-        // --- Left panel buttons ---
+        // Left panel: add/remove
         this.addDrawableChild(ButtonWidget.builder(
                 Text.of(StringUtils.translate("playercontrolpp.gui.route.add")),
                 btn -> {
@@ -89,23 +90,21 @@ public class RouteListGui extends Screen {
                 .dimensions(LEFT_X + 90, TOP, 85, 20)
                 .build());
 
-        // --- Back button ---
         this.addDrawableChild(ButtonWidget.builder(
                 Text.of(StringUtils.translate("playercontrolpp.gui.route.back")),
                 btn -> close())
                 .dimensions(this.width - 55, 10, 45, 20)
                 .build());
 
-        // --- Name field ---
-        int fieldX = RIGHT_X + 55;
-        nameField = new TextFieldWidget(textRenderer, fieldX, TOP, 140, 18, Text.empty());
+        // Name field
+        nameField = new TextFieldWidget(textRenderer, FIELD_X, TOP, 140, 18, Text.empty());
         nameField.setChangedListener(s -> {
             if (selectedRoute != null) { selectedRoute.setName(s); dirty = true; }
         });
         this.addSelectableChild(nameField);
 
-        // --- Radius and Loop fields ---
-        radiusField = new TextFieldWidget(textRenderer, fieldX, 0, 60, 18, Text.empty());
+        // Settings fields
+        radiusField = new TextFieldWidget(textRenderer, FIELD_X, 0, 55, 18, Text.empty());
         radiusField.setChangedListener(s -> {
             if (selectedRoute != null) try {
                 selectedRoute.setArrivalRadius(Double.parseDouble(s)); dirty = true;
@@ -113,7 +112,7 @@ public class RouteListGui extends Screen {
         });
         this.addSelectableChild(radiusField);
 
-        loopField = new TextFieldWidget(textRenderer, fieldX + 115, 0, 50, 18, Text.empty());
+        loopField = new TextFieldWidget(textRenderer, 0, 0, 45, 18, Text.empty());
         loopField.setChangedListener(s -> {
             if (selectedRoute != null) try {
                 selectedRoute.setLoopCount(Integer.parseInt(s)); dirty = true;
@@ -121,44 +120,33 @@ public class RouteListGui extends Screen {
         });
         this.addSelectableChild(loopField);
 
+        layerIncField = new TextFieldWidget(textRenderer, 0, 0, 40, 18, Text.empty());
+        layerIncField.setChangedListener(s -> {
+            if (selectedRoute != null) try {
+                selectedRoute.setLayerIncrement(Integer.parseInt(s)); dirty = true;
+            } catch (NumberFormatException ignored) {}
+        });
+        this.addSelectableChild(layerIncField);
+
         rebuildWaypointFields();
         refreshFieldValues();
     }
 
-    // --- Waypoint row management ---
+    // --- Waypoint management ---
 
     private void rebuildWaypointFields() {
         for (WaypointFields wf : waypointFields) {
-            for (TextFieldWidget tf : wf.fields) {
-                this.remove(tf);
-            }
+            for (TextFieldWidget tf : wf.fields) this.remove(tf);
         }
         waypointFields.clear();
-
         if (selectedRoute == null) return;
-
-        for (int i = 0; i < selectedRoute.getNodes().size(); i++) {
-            addWaypointRow(i);
-        }
+        for (int i = 0; i < selectedRoute.getNodes().size(); i++) addWaypointRow(i);
     }
 
     private void addWaypointRow(int index) {
         WaypointFields wf = new WaypointFields(index);
         waypointFields.add(index, wf);
-        for (TextFieldWidget tf : wf.fields) {
-            this.addSelectableChild(tf);
-        }
-    }
-
-    private void removeWaypointRow(int index) {
-        if (index < waypointFields.size()) {
-            WaypointFields wf = waypointFields.get(index);
-            for (TextFieldWidget tf : wf.fields) this.remove(tf);
-            waypointFields.remove(index);
-        }
-        for (int i = 0; i < waypointFields.size(); i++) {
-            waypointFields.get(i).nodeIndex = i;
-        }
+        for (TextFieldWidget tf : wf.fields) this.addSelectableChild(tf);
     }
 
     private void rebuildAllWaypointRows() {
@@ -167,42 +155,40 @@ public class RouteListGui extends Screen {
         }
         waypointFields.clear();
         if (selectedRoute != null) {
-            for (int i = 0; i < selectedRoute.getNodes().size(); i++) {
-                addWaypointRow(i);
-            }
+            for (int i = 0; i < selectedRoute.getNodes().size(); i++) addWaypointRow(i);
         }
     }
-
-    // --- Field value sync ---
 
     private void refreshFieldValues() {
         boolean hasSel = selectedRoute != null;
         nameField.setEditable(hasSel);
         radiusField.setEditable(hasSel);
         loopField.setEditable(hasSel);
+        layerIncField.setEditable(hasSel);
 
         if (hasSel) {
             nameField.setText(selectedRoute.getName());
             radiusField.setText(String.format("%.1f", selectedRoute.getArrivalRadius()));
             loopField.setText(String.valueOf(selectedRoute.getLoopCount()));
+            layerIncField.setText(String.valueOf(selectedRoute.getLayerIncrement()));
         } else {
             nameField.setText("");
             radiusField.setText("");
             loopField.setText("");
+            layerIncField.setText("");
         }
 
         for (WaypointFields wf : waypointFields) {
             RouteNode node = selectedRoute.getNodes().get(wf.nodeIndex);
             wf.fields.get(0).setText(String.format("%.1f", node.x));
-            wf.fields.get(1).setText(String.format("%.1f", node.y));
-            wf.fields.get(2).setText(String.format("%.1f", node.z));
+            wf.fields.get(1).setText(String.format("%.1f", node.z));
         }
     }
 
     private int getRightContentHeight() {
         if (selectedRoute == null) return 0;
         int n = selectedRoute.getNodes().size();
-        return 26 + 18 + n * WPT_ROW_H + 22 + 46 + 14;
+        return 26 + 18 + n * WPT_ROW_H + 22 + 46 + 24 + 14;
     }
 
     // --- Render ---
@@ -212,12 +198,11 @@ public class RouteListGui extends Screen {
         this.renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
 
-        // Title
         context.drawCenteredTextWithShadow(textRenderer,
                 Text.of(StringUtils.translate("playercontrolpp.gui.route.title")),
                 this.width / 2, 12, 0xFFFFFFFF);
 
-        // --- Left panel: route list ---
+        // --- Left panel ---
         List<Route> routes = RouteManager.getInstance().getRoutes();
         int listTop = TOP + 30;
         int maxLeftVisible = (this.height - listTop - 10) / LEFT_ITEM_H;
@@ -232,8 +217,7 @@ public class RouteListGui extends Screen {
             int bg = isSelected ? 0x40FFFFFF : 0x0;
             int color = isSelected ? 0xFF55FF55 : 0xFFCCCCCC;
             context.fill(LEFT_X + 1, y, LEFT_X + LEFT_W - 1, y + LEFT_ITEM_H - 1, bg);
-            context.drawTextWithShadow(textRenderer,
-                    Text.of(route.getName()), LEFT_X + 4, y + 5, color);
+            context.drawTextWithShadow(textRenderer, Text.of(route.getName()), LEFT_X + 4, y + 5, color);
         }
 
         // --- Right panel ---
@@ -251,64 +235,66 @@ public class RouteListGui extends Screen {
         if (rightScroll < 0) rightScroll = 0;
 
         int ry = TOP - rightScroll;
-        int fieldX = RIGHT_X + 55;
 
-        // --- Name row ---
+        // Name
         context.drawTextWithShadow(textRenderer,
                 Text.of(StringUtils.translate("playercontrolpp.gui.route.name") + ":"),
                 RIGHT_X, ry + 4, 0xFFFFFFFF);
-        nameField.setX(fieldX);
+        nameField.setX(FIELD_X);
         nameField.setY(ry + 2);
         nameField.render(context, mouseX, mouseY, delta);
         ry += 26;
 
-        // --- Waypoints header ---
+        // Waypoints header
         context.drawTextWithShadow(textRenderer,
                 Text.of("-- " + StringUtils.translate("playercontrolpp.gui.route.waypoints") + " --"),
                 RIGHT_X + 10, ry + 2, 0xFFAAAAAA);
         ry += 18;
 
-        // --- Waypoint rows ---
+        // Waypoint rows (X + Z only, no Y)
         wptHitAreas.clear();
         List<RouteNode> nodes = selectedRoute.getNodes();
+        int xFieldX = FIELD_X;
+        int zFieldX = FIELD_X + FIELD_W + FIELD_GAP;
 
         for (int i = 0; i < nodes.size(); i++) {
-            RouteNode node = nodes.get(i);
             String label;
             if (i == 0) label = StringUtils.translate("playercontrolpp.gui.route.node_start");
             else if (i == nodes.size() - 1) label = StringUtils.translate("playercontrolpp.gui.route.node_end");
             else label = StringUtils.translate("playercontrolpp.gui.route.node_mid") + " " + i;
 
-            // Label
             context.drawTextWithShadow(textRenderer, Text.of(label),
                     RIGHT_X, ry + 4, 0xFFFFFFFF);
 
-            // X, Y, Z fields
-            for (int j = 0; j < 3; j++) {
-                String prefix = j == 0 ? "X:" : j == 1 ? "Y:" : "Z:";
-                context.drawTextWithShadow(textRenderer, Text.of(prefix),
-                        fieldX + j * 72 - 14, ry + 4, 0xFFCCCCCC);
-
-                if (i < waypointFields.size()) {
-                    TextFieldWidget tf = waypointFields.get(i).fields.get(j);
-                    tf.setX(fieldX + j * 72);
-                    tf.setY(ry + 2);
-                    tf.render(context, mouseX, mouseY, delta);
-                }
+            // X field
+            context.drawTextWithShadow(textRenderer, Text.of("X:"), xFieldX - 12, ry + 4, 0xFFCCCCCC);
+            if (i < waypointFields.size()) {
+                TextFieldWidget tf = waypointFields.get(i).fields.get(0);
+                tf.setX(xFieldX);
+                tf.setY(ry + 2);
+                tf.render(context, mouseX, mouseY, delta);
             }
 
-            // [Set] button position
-            int setBtnX = fieldX + 3 * 72 + 4;
+            // Z field
+            context.drawTextWithShadow(textRenderer, Text.of("Z:"), zFieldX - 12, ry + 4, 0xFFCCCCCC);
+            if (i < waypointFields.size()) {
+                TextFieldWidget tf = waypointFields.get(i).fields.get(1);
+                tf.setX(zFieldX);
+                tf.setY(ry + 2);
+                tf.render(context, mouseX, mouseY, delta);
+            }
+
+            // [Set] button
+            int setBtnX = zFieldX + FIELD_W + 8;
             int setBtnW = textRenderer.getWidth("[Set]");
             int setColor = 0xFF55FFFF;
-            // Highlight on hover
             if (mouseX >= setBtnX && mouseX <= setBtnX + setBtnW
                     && mouseY >= ry && mouseY <= ry + WPT_ROW_H) {
                 setColor = 0xFFFFFF55;
             }
             context.drawTextWithShadow(textRenderer, Text.of("[Set]"), setBtnX, ry + 4, setColor);
 
-            // [X] remove button (intermediate nodes only)
+            // [X] button (intermediate only)
             int xBtnX = setBtnX + setBtnW + 8;
             int xBtnW = 0;
             if (i > 0 && i < nodes.size() - 1) {
@@ -321,16 +307,14 @@ public class RouteListGui extends Screen {
                 context.drawTextWithShadow(textRenderer, Text.of("[X]"), xBtnX, ry + 4, xColor);
             }
 
-            // Record hit area for this row
             wptHitAreas.add(new WptHitArea(ry, setBtnX, setBtnW, xBtnX, xBtnW, i));
-
             ry += WPT_ROW_H;
         }
 
-        // --- Add Node button (single, below waypoints) ---
+        // [+ Add Node] button
         String addLabel = "[+ " + StringUtils.translate("playercontrolpp.gui.route.add_node") + "]";
         int addBtnW = textRenderer.getWidth(addLabel);
-        int addBtnX = fieldX + 3 * 72;
+        int addBtnX = zFieldX + FIELD_W + 10;
         int addBtnY = ry + 2;
         int addColor = 0xFF55FF55;
         if (mouseX >= addBtnX && mouseX <= addBtnX + addBtnW
@@ -338,29 +322,35 @@ public class RouteListGui extends Screen {
             addColor = 0xFFFFFF55;
         }
         context.drawTextWithShadow(textRenderer, Text.of(addLabel), addBtnX, addBtnY, addColor);
-        // Record the add button hit area
         wptHitAreas.add(new WptHitArea(addBtnX, addBtnY, addBtnW, -1, 0, 0, -1));
-
         ry += 22;
 
-        // --- Settings ---
-        int setLabelX = RIGHT_X;
+        // Settings row 1: arrival radius + loop count
         context.drawTextWithShadow(textRenderer,
                 Text.of(StringUtils.translate("playercontrolpp.gui.route.arrival_radius") + ":"),
-                setLabelX, ry + 4, 0xFFFFFFFF);
-        radiusField.setX(fieldX);
+                RIGHT_X, ry + 4, 0xFFFFFFFF);
+        radiusField.setX(FIELD_X);
         radiusField.setY(ry + 2);
         radiusField.render(context, mouseX, mouseY, delta);
 
+        int lcLabelX = FIELD_X + 70;
         context.drawTextWithShadow(textRenderer,
                 Text.of(StringUtils.translate("playercontrolpp.gui.route.loop_count") + ":"),
-                fieldX + 70, ry + 4, 0xFFFFFFFF);
-        loopField.setX(fieldX + 135);
+                lcLabelX, ry + 4, 0xFFFFFFFF);
+        loopField.setX(lcLabelX + 48);
         loopField.setY(ry + 2);
         loopField.render(context, mouseX, mouseY, delta);
         ry += 24;
 
-        // --- Dimension ---
+        // Settings row 2: layer increment
+        context.drawTextWithShadow(textRenderer,
+                Text.of(StringUtils.translate("playercontrolpp.gui.route.layer_increment") + ":"),
+                RIGHT_X, ry + 4, 0xFFFFFFFF);
+        layerIncField.setX(FIELD_X);
+        layerIncField.setY(ry + 2);
+        layerIncField.render(context, mouseX, mouseY, delta);
+        ry += 24;
+
         if (!selectedRoute.getDimensionId().isEmpty()) {
             context.drawTextWithShadow(textRenderer,
                     Text.of("Dim: " + selectedRoute.getDimensionId()),
@@ -368,11 +358,10 @@ public class RouteListGui extends Screen {
         }
     }
 
-    // --- Mouse input ---
+    // --- Mouse ---
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // Left panel route list clicks
         List<Route> routes = RouteManager.getInstance().getRoutes();
         int listTop = TOP + 30;
         int maxLeftVisible = (this.height - listTop - 10) / LEFT_ITEM_H;
@@ -388,18 +377,15 @@ public class RouteListGui extends Screen {
             }
         }
 
-        // Right panel waypoint buttons
         if (selectedRoute != null) {
             for (WptHitArea area : wptHitAreas) {
                 if (area.isAddButton) {
-                    // [+] Add Node button
                     if (mouseX >= area.setBtnX && mouseX <= area.setBtnX + area.setBtnW
                             && mouseY >= area.y - 2 && mouseY <= area.y + 14) {
                         addWaypointAtEnd();
                         return true;
                     }
                 } else {
-                    // [Set] button
                     if (mouseX >= area.setBtnX && mouseX <= area.setBtnX + area.setBtnW
                             && mouseY >= area.y && mouseY <= area.y + WPT_ROW_H) {
                         var player = MinecraftClient.getInstance().player;
@@ -414,7 +400,6 @@ public class RouteListGui extends Screen {
                         }
                         return true;
                     }
-                    // [X] button (only if present: xBtnW > 0)
                     if (area.xBtnW > 0
                             && mouseX >= area.xBtnX && mouseX <= area.xBtnX + area.xBtnW
                             && mouseY >= area.y && mouseY <= area.y + WPT_ROW_H) {
@@ -424,14 +409,12 @@ public class RouteListGui extends Screen {
                 }
             }
         }
-
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private void addWaypointAtEnd() {
         if (selectedRoute == null) return;
         List<RouteNode> nodes = selectedRoute.getNodes();
-        // Insert new node before the end node
         int insertIdx = nodes.size() - 1;
         RouteNode newNode = new RouteNode();
         if (insertIdx > 0) {
@@ -480,6 +463,7 @@ public class RouteListGui extends Screen {
         if (nameField.isFocused()) return nameField.charTyped(chr, modifiers);
         if (radiusField.isFocused()) return radiusField.charTyped(chr, modifiers);
         if (loopField.isFocused()) return loopField.charTyped(chr, modifiers);
+        if (layerIncField.isFocused()) return layerIncField.charTyped(chr, modifiers);
         for (WaypointFields wf : waypointFields) {
             for (TextFieldWidget tf : wf.fields) {
                 if (tf.isFocused()) return tf.charTyped(chr, modifiers);
@@ -490,22 +474,22 @@ public class RouteListGui extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // ESC closes the GUI when no text field is focused
         if (keyCode == 256 && !nameField.isFocused() && !radiusField.isFocused()
-                && !loopField.isFocused()) {
-            boolean anyWptFocused = false;
+                && !loopField.isFocused() && !layerIncField.isFocused()) {
+            boolean anyFocused = false;
             for (WaypointFields wf : waypointFields) {
                 for (TextFieldWidget tf : wf.fields) {
-                    if (tf.isFocused()) { anyWptFocused = true; break; }
+                    if (tf.isFocused()) { anyFocused = true; break; }
                 }
-                if (anyWptFocused) break;
+                if (anyFocused) break;
             }
-            if (!anyWptFocused) { close(); return true; }
+            if (!anyFocused) { close(); return true; }
         }
 
         if (nameField.isFocused()) return nameField.keyPressed(keyCode, scanCode, modifiers);
         if (radiusField.isFocused()) return radiusField.keyPressed(keyCode, scanCode, modifiers);
         if (loopField.isFocused()) return loopField.keyPressed(keyCode, scanCode, modifiers);
+        if (layerIncField.isFocused()) return layerIncField.keyPressed(keyCode, scanCode, modifiers);
         for (WaypointFields wf : waypointFields) {
             for (TextFieldWidget tf : wf.fields) {
                 if (tf.isFocused()) return tf.keyPressed(keyCode, scanCode, modifiers);
@@ -514,65 +498,52 @@ public class RouteListGui extends Screen {
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
-    // --- Helper classes ---
+    // --- Helpers ---
 
-    /** Records the clickable hit area for a waypoint row's buttons. */
     private static class WptHitArea {
-        final int y;
-        final int setBtnX, setBtnW;
-        final int xBtnX, xBtnW;  // [X] remove button (0 width if hidden)
-        final int nodeIndex;
+        final int y, setBtnX, setBtnW, xBtnX, xBtnW, nodeIndex;
         final boolean isAddButton;
-
-        // Waypoint row hit area
         WptHitArea(int y, int setBtnX, int setBtnW, int xBtnX, int xBtnW, int nodeIndex) {
-            this.y = y;
-            this.setBtnX = setBtnX;
-            this.setBtnW = setBtnW;
-            this.xBtnX = xBtnX;
-            this.xBtnW = xBtnW;
-            this.nodeIndex = nodeIndex;
+            this.y = y; this.setBtnX = setBtnX; this.setBtnW = setBtnW;
+            this.xBtnX = xBtnX; this.xBtnW = xBtnW; this.nodeIndex = nodeIndex;
             this.isAddButton = false;
         }
-
-        // Add button hit area
-        WptHitArea(int x, int y, int w, int nodeIndex, int dummy, int dummy2, int dummy3) {
-            this.y = y;
-            this.setBtnX = x;
-            this.setBtnW = w;
-            this.xBtnX = 0;
-            this.xBtnW = 0;
-            this.nodeIndex = -1;
+        WptHitArea(int x, int y, int w, int nodeIndex, int a, int b, int c) {
+            this.y = y; this.setBtnX = x; this.setBtnW = w;
+            this.xBtnX = 0; this.xBtnW = 0; this.nodeIndex = -1;
             this.isAddButton = true;
         }
     }
 
     private class WaypointFields {
         int nodeIndex;
-        List<TextFieldWidget> fields = new ArrayList<>(3);
+        List<TextFieldWidget> fields = new ArrayList<>(2);
 
         WaypointFields(int nodeIndex) {
             this.nodeIndex = nodeIndex;
-            int fieldX = RIGHT_X + 55;
-            for (int j = 0; j < 3; j++) {
-                TextFieldWidget tf = new TextFieldWidget(textRenderer,
-                        fieldX + j * 72, 0, 52, 18, Text.empty());
-                final int nodeIdx = nodeIndex;
-                final int coord = j;
-                tf.setChangedListener(s -> {
-                    if (selectedRoute != null && nodeIdx < selectedRoute.getNodes().size()) {
-                        RouteNode node = selectedRoute.getNodes().get(nodeIdx);
-                        try {
-                            double v = Double.parseDouble(s);
-                            if (coord == 0) node.x = v;
-                            else if (coord == 1) node.y = v;
-                            else node.z = v;
-                            dirty = true;
-                        } catch (NumberFormatException ignored) {}
-                    }
-                });
-                fields.add(tf);
-            }
+            int xFieldX = FIELD_X;
+            int zFieldX = FIELD_X + FIELD_W + FIELD_GAP;
+
+            // X field
+            TextFieldWidget xf = new TextFieldWidget(textRenderer, xFieldX, 0, FIELD_W, 18, Text.empty());
+            final int idx = nodeIndex;
+            xf.setChangedListener(s -> {
+                if (selectedRoute != null && idx < selectedRoute.getNodes().size()) {
+                    try { selectedRoute.getNodes().get(idx).x = Double.parseDouble(s); dirty = true; }
+                    catch (NumberFormatException ignored) {}
+                }
+            });
+            fields.add(xf);
+
+            // Z field
+            TextFieldWidget zf = new TextFieldWidget(textRenderer, zFieldX, 0, FIELD_W, 18, Text.empty());
+            zf.setChangedListener(s -> {
+                if (selectedRoute != null && idx < selectedRoute.getNodes().size()) {
+                    try { selectedRoute.getNodes().get(idx).z = Double.parseDouble(s); dirty = true; }
+                    catch (NumberFormatException ignored) {}
+                }
+            });
+            fields.add(zf);
         }
     }
 }
