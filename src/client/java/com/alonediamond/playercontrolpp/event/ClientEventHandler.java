@@ -1,6 +1,8 @@
 package com.alonediamond.playercontrolpp.event;
 
 import com.alonediamond.playercontrolpp.feature.AutoForwardFeature;
+import com.alonediamond.playercontrolpp.record.RecordingManager;
+import com.alonediamond.playercontrolpp.record.InputPlayer;
 import com.alonediamond.playercontrolpp.route.RouteFlowRuntime;
 import fi.dy.masa.malilib.event.TickHandler;
 import fi.dy.masa.malilib.event.WorldLoadHandler;
@@ -28,6 +30,17 @@ public class ClientEventHandler {
         @Override
         public void onClientTick(MinecraftClient mc) {
             RouteFlowRuntime.getInstance().onClientTick(mc);
+            RecordingManager.getInstance().onClientTick(mc);
+            // Apply playback yaw after input processing
+            if (RecordingManager.getInstance().getPlayer().isPlaying()) {
+                RecordingManager.getInstance().getPlayer().applyYaw(mc);
+            }
+            // Handle playback left/right click
+            InputPlayer player = RecordingManager.getInstance().getPlayer();
+            if (player.isPlaying()) {
+                mc.options.attackKey.setPressed(player.getLeftClick());
+                mc.options.useKey.setPressed(player.getRightClick());
+            }
         }
     }
 }

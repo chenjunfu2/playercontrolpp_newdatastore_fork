@@ -1,6 +1,8 @@
 package com.alonediamond.playercontrolpp.mixin.client;
 
 import com.alonediamond.playercontrolpp.feature.AutoForwardFeature;
+import com.alonediamond.playercontrolpp.record.InputPlayer;
+import com.alonediamond.playercontrolpp.record.RecordingManager;
 import com.alonediamond.playercontrolpp.route.RouteFlowRuntime;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.input.KeyboardInput;
@@ -15,24 +17,42 @@ public abstract class MixinKeyboardInput {
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void playercontrolpp$afterTick(CallbackInfo ci) {
+        InputPlayer playback = RecordingManager.getInstance().getPlayer();
         boolean autoForward = AutoForwardFeature.isEnabled();
         boolean routeForward = RouteFlowRuntime.getInstance().isForwardActive();
 
-        if (!autoForward && !routeForward) {
+        if (!playback.isPlaying() && !autoForward && !routeForward) {
             return;
         }
 
         Input self = (Input) (Object) this;
         PlayerInput original = self.playerInput;
-        self.playerInput = new PlayerInput(
-                true,                    // forward = true
-                false,                   // backward = false
-                original.left(),         // preserve A
-                original.right(),        // preserve D
-                original.jump(),         // preserve jump
-                original.sneak(),        // preserve sneak
-                original.sprint()        // preserve sprint
-        );
-        self.movementForward = 1.0F;
+
+        if (playback.isPlaying()) {
+            // Use recorded input values
+            self.playerInput = new PlayerInput(
+                    playback.getForward() > 0,
+                    playback.getForward() < 0,
+                    playback.getSideways() < 0,
+                    playback.getSideways() > 0,
+                    playback.getJump(),
+                    playback.getSneak(),
+                    original.sprint()
+            );
+            self.movementForward = playback.getForward();
+            self.movementSideways = playback.getSideways();
+        } else {
+            // Auto-forward or route-forward
+            self.playerInput = new PlayerInput(
+                    true,                    // forward = true
+                    false,                   // backward = false
+                    original.left(),         // preserve A
+                    original.right(),        // preserve D
+                    original.jump(),         // preserve jump
+                    original.sneak(),        // preserve sneak
+                    original.sprint()        // preserve sprint
+            );
+            self.movementForward = 1.0F;
+        }
     }
 }

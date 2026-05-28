@@ -4,26 +4,39 @@
   "playercontrolpp.gui.tab.route_hotkeys": "路径热键",
   "playercontrolpp.gui.tab.settings": "设置",
   "playercontrolpp.gui.tab.routes": "路径",
+  "playercontrolpp.gui.tab.recording": "录制",
 
   "playercontrolpp.config.hotkeys.name.autoForward": "自动前进",
   "playercontrolpp.config.hotkeys.pretty_name.autoForward": "自动前进",
-  "playercontrolpp.config.hotkeys.comment.autoForward": "切换自动前进。开启后玩家将持续向前移动。",
+  "playercontrolpp.config.hotkeys.comment.autoForward": "切换自动前进。",
 
   "playercontrolpp.config.hotkeys.name.quickTurn": "快速转向",
   "playercontrolpp.config.hotkeys.pretty_name.quickTurn": "快速转向",
-  "playercontrolpp.config.hotkeys.comment.quickTurn": "按配置的角度快速转向。瞬间旋转。",
+  "playercontrolpp.config.hotkeys.comment.quickTurn": "按配置的角度快速转向。",
 
   "playercontrolpp.config.settings.name.turnAngle": "转向角度",
   "playercontrolpp.config.settings.pretty_name.turnAngle": "转向角度",
-  "playercontrolpp.config.settings.comment.turnAngle": "快速转向的角度（度）。常用值：90、180、270。",
+  "playercontrolpp.config.settings.comment.turnAngle": "快速转向的角度（度）。",
+
+  "playercontrolpp.config.settings.name.layerIncrement": "图层增量",
+  "playercontrolpp.config.settings.pretty_name.layerIncrement": "图层增量",
+  "playercontrolpp.config.settings.comment.layerIncrement": "每次路径循环完成后 Litematica 渲染层的增量。",
 
   "playercontrolpp.config.hotkeys.name.openConfigGui": "打开配置界面",
   "playercontrolpp.config.hotkeys.pretty_name.openConfigGui": "打开配置界面",
-  "playercontrolpp.config.hotkeys.comment.openConfigGui": "打开 PlayerControl++ 配置界面。默认按键：P + C。",
+  "playercontrolpp.config.hotkeys.comment.openConfigGui": "打开配置界面。默认：P + C。",
 
   "playercontrolpp.config.hotkeys.name.openRouteGui": "打开路径界面",
   "playercontrolpp.config.hotkeys.pretty_name.openRouteGui": "打开路径界面",
-  "playercontrolpp.config.hotkeys.comment.openRouteGui": "打开路径流系统配置界面。",
+  "playercontrolpp.config.hotkeys.comment.openRouteGui": "打开路径流系统配置。",
+
+  "playercontrolpp.config.hotkeys.name.recordingToggle": "切换录制",
+  "playercontrolpp.config.hotkeys.pretty_name.recordingToggle": "切换录制",
+  "playercontrolpp.config.hotkeys.comment.recordingToggle": "开始/停止输入录制。",
+
+  "playercontrolpp.config.hotkeys.name.openRecordingGui": "打开录制界面",
+  "playercontrolpp.config.hotkeys.pretty_name.openRecordingGui": "打开录制界面",
+  "playercontrolpp.config.hotkeys.comment.openRecordingGui": "打开录制与回放界面。",
 
   "playercontrolpp.message.auto_forward.on": "[PlayerControl++] 自动前进：开",
   "playercontrolpp.message.auto_forward.off": "[PlayerControl++] 自动前进：关",
@@ -35,6 +48,14 @@
   "playercontrolpp.message.route.failed": "[PlayerControl++] 路径失败（卡住）",
   "playercontrolpp.message.route.world_change": "[PlayerControl++] 路径已停止（世界切换）",
   "playercontrolpp.message.route.death": "[PlayerControl++] 路径已停止（玩家死亡）",
+
+  "playercontrolpp.message.recording.started": "[PlayerControl++] 录制已开始",
+  "playercontrolpp.message.recording.stopped": "[PlayerControl++] 录制已停止",
+  "playercontrolpp.message.playback.started": "[PlayerControl++] 回放已开始",
+  "playercontrolpp.message.playback.stopped": "[PlayerControl++] 回放已停止",
+  "playercontrolpp.message.playback.completed": "[PlayerControl++] 回放已完成",
+
+  "playercontrolpp.message.litematica.layer": "[PlayerControl++] 渲染层：%s",
 
   "playercontrolpp.gui.route.title": "路径流系统",
   "playercontrolpp.gui.route.add": "+ 添加路径",
@@ -50,5 +71,16 @@
   "playercontrolpp.gui.route.add_node": "添加节点",
   "playercontrolpp.gui.route.arrival_radius": "到达半径",
   "playercontrolpp.gui.route.loop_count": "循环次数",
-  "playercontrolpp.gui.route.no_selection": "请在左侧选择一个路径进行编辑。"
+  "playercontrolpp.gui.route.no_selection": "请在左侧选择一个路径进行编辑。",
+
+  "playercontrolpp.gui.recording.title": "录制与回放",
+  "playercontrolpp.gui.recording.start_recording": "开始/停止录制",
+  "playercontrolpp.gui.recording.new_recording": "新录制",
+  "playercontrolpp.gui.recording.play": "播放",
+  "playercontrolpp.gui.recording.stop": "停止",
+  "playercontrolpp.gui.recording.play_count": "播放次数",
+  "playercontrolpp.gui.recording.frames": "帧数",
+  "playercontrolpp.gui.recording.recording": "状态：录制中...",
+  "playercontrolpp.gui.recording.playing": "状态：播放中...",
+  "playercontrolpp.gui.recording.idle": "状态：空闲"
 }

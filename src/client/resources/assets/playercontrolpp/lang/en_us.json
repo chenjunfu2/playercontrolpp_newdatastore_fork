@@ -4,26 +4,39 @@
   "playercontrolpp.gui.tab.route_hotkeys": "Route Hotkeys",
   "playercontrolpp.gui.tab.settings": "Settings",
   "playercontrolpp.gui.tab.routes": "Routes",
+  "playercontrolpp.gui.tab.recording": "Recording",
 
   "playercontrolpp.config.hotkeys.name.autoForward": "Auto Forward",
   "playercontrolpp.config.hotkeys.pretty_name.autoForward": "Auto Forward",
-  "playercontrolpp.config.hotkeys.comment.autoForward": "Toggle auto forward movement. When enabled, the player will continuously move forward.",
+  "playercontrolpp.config.hotkeys.comment.autoForward": "Toggle auto forward movement.",
 
   "playercontrolpp.config.hotkeys.name.quickTurn": "Quick Turn",
   "playercontrolpp.config.hotkeys.pretty_name.quickTurn": "Quick Turn",
-  "playercontrolpp.config.hotkeys.comment.quickTurn": "Quick turn by the configured angle. Instant rotational snap.",
+  "playercontrolpp.config.hotkeys.comment.quickTurn": "Quick turn by the configured angle.",
 
   "playercontrolpp.config.settings.name.turnAngle": "Turn Angle",
   "playercontrolpp.config.settings.pretty_name.turnAngle": "Turn Angle",
-  "playercontrolpp.config.settings.comment.turnAngle": "Turn angle in degrees for Quick Turn. Common values: 90, 180, 270.",
+  "playercontrolpp.config.settings.comment.turnAngle": "Turn angle in degrees for Quick Turn.",
+
+  "playercontrolpp.config.settings.name.layerIncrement": "Layer Increment",
+  "playercontrolpp.config.settings.pretty_name.layerIncrement": "Layer Increment",
+  "playercontrolpp.config.settings.comment.layerIncrement": "Litematica render layer increment amount after each route cycle.",
 
   "playercontrolpp.config.hotkeys.name.openConfigGui": "Open Config GUI",
   "playercontrolpp.config.hotkeys.pretty_name.openConfigGui": "Open Config GUI",
-  "playercontrolpp.config.hotkeys.comment.openConfigGui": "Open the PlayerControl++ configuration GUI. Default: P + C.",
+  "playercontrolpp.config.hotkeys.comment.openConfigGui": "Open the config GUI. Default: P + C.",
 
   "playercontrolpp.config.hotkeys.name.openRouteGui": "Open Route GUI",
   "playercontrolpp.config.hotkeys.pretty_name.openRouteGui": "Open Route GUI",
-  "playercontrolpp.config.hotkeys.comment.openRouteGui": "Open the Route Flow System configuration GUI.",
+  "playercontrolpp.config.hotkeys.comment.openRouteGui": "Open the Route Flow System config.",
+
+  "playercontrolpp.config.hotkeys.name.recordingToggle": "Toggle Recording",
+  "playercontrolpp.config.hotkeys.pretty_name.recordingToggle": "Toggle Recording",
+  "playercontrolpp.config.hotkeys.comment.recordingToggle": "Start/stop input recording.",
+
+  "playercontrolpp.config.hotkeys.name.openRecordingGui": "Open Recording GUI",
+  "playercontrolpp.config.hotkeys.pretty_name.openRecordingGui": "Open Recording GUI",
+  "playercontrolpp.config.hotkeys.comment.openRecordingGui": "Open the Recording & Playback GUI.",
 
   "playercontrolpp.message.auto_forward.on": "[PlayerControl++] Auto Forward: ON",
   "playercontrolpp.message.auto_forward.off": "[PlayerControl++] Auto Forward: OFF",
@@ -35,6 +48,14 @@
   "playercontrolpp.message.route.failed": "[PlayerControl++] Route Failed (Stuck)",
   "playercontrolpp.message.route.world_change": "[PlayerControl++] Route Stopped (world changed)",
   "playercontrolpp.message.route.death": "[PlayerControl++] Route Stopped (player died)",
+
+  "playercontrolpp.message.recording.started": "[PlayerControl++] Recording Started",
+  "playercontrolpp.message.recording.stopped": "[PlayerControl++] Recording Stopped",
+  "playercontrolpp.message.playback.started": "[PlayerControl++] Playback Started",
+  "playercontrolpp.message.playback.stopped": "[PlayerControl++] Playback Stopped",
+  "playercontrolpp.message.playback.completed": "[PlayerControl++] Playback Completed",
+
+  "playercontrolpp.message.litematica.layer": "[PlayerControl++] Layer: %s",
 
   "playercontrolpp.gui.route.title": "Route Flow System",
   "playercontrolpp.gui.route.add": "+ Add Route",
@@ -50,5 +71,16 @@
   "playercontrolpp.gui.route.add_node": "Add Node",
   "playercontrolpp.gui.route.arrival_radius": "Arrival Radius",
   "playercontrolpp.gui.route.loop_count": "Loop Count",
-  "playercontrolpp.gui.route.no_selection": "Select a route on the left to edit."
+  "playercontrolpp.gui.route.no_selection": "Select a route on the left to edit.",
+
+  "playercontrolpp.gui.recording.title": "Recording & Playback",
+  "playercontrolpp.gui.recording.start_recording": "Start/Stop Rec",
+  "playercontrolpp.gui.recording.new_recording": "New Recording",
+  "playercontrolpp.gui.recording.play": "Play",
+  "playercontrolpp.gui.recording.stop": "Stop",
+  "playercontrolpp.gui.recording.play_count": "Play Count",
+  "playercontrolpp.gui.recording.frames": "Frames",
+  "playercontrolpp.gui.recording.recording": "Status: Recording...",
+  "playercontrolpp.gui.recording.playing": "Status: Playing...",
+  "playercontrolpp.gui.recording.idle": "Status: Idle"
 }

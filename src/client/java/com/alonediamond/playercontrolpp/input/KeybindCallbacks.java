@@ -3,17 +3,24 @@ package com.alonediamond.playercontrolpp.input;
 import com.alonediamond.playercontrolpp.feature.AutoForwardFeature;
 import com.alonediamond.playercontrolpp.feature.QuickTurnFeature;
 import com.alonediamond.playercontrolpp.gui.PlayerControlppConfigGui;
+import com.alonediamond.playercontrolpp.gui.RecordingListGui;
 import com.alonediamond.playercontrolpp.gui.RouteListGui;
+import com.alonediamond.playercontrolpp.record.InputRecorder;
+import com.alonediamond.playercontrolpp.record.RecordingFile;
+import com.alonediamond.playercontrolpp.record.RecordingManager;
 import com.alonediamond.playercontrolpp.route.RouteManager;
 import fi.dy.masa.malilib.hotkeys.IHotkeyCallback;
 import fi.dy.masa.malilib.hotkeys.IKeybind;
 import fi.dy.masa.malilib.hotkeys.KeyAction;
+import fi.dy.masa.malilib.util.StringUtils;
 import net.minecraft.client.MinecraftClient;
 
 import static com.alonediamond.playercontrolpp.config.Configs.Hotkeys.AUTO_FORWARD;
 import static com.alonediamond.playercontrolpp.config.Configs.Hotkeys.OPEN_CONFIG_GUI;
+import static com.alonediamond.playercontrolpp.config.Configs.Hotkeys.OPEN_RECORDING_GUI;
 import static com.alonediamond.playercontrolpp.config.Configs.Hotkeys.QUICK_TURN;
 import static com.alonediamond.playercontrolpp.config.Configs.Hotkeys.OPEN_ROUTE_GUI;
+import static com.alonediamond.playercontrolpp.config.Configs.Hotkeys.RECORDING_TOGGLE;
 
 public class KeybindCallbacks {
 
@@ -22,6 +29,8 @@ public class KeybindCallbacks {
         AUTO_FORWARD.getKeybind().setCallback(new AutoForwardCallback());
         QUICK_TURN.getKeybind().setCallback(new QuickTurnCallback());
         OPEN_ROUTE_GUI.getKeybind().setCallback(new OpenRouteGuiCallback());
+        RECORDING_TOGGLE.getKeybind().setCallback(new RecordingToggleCallback());
+        OPEN_RECORDING_GUI.getKeybind().setCallback(new OpenRecordingGuiCallback());
 
         // Register route hotkey callbacks
         for (RouteManager.RouteHotkey rh : RouteManager.getInstance().getRouteHotkeyList()) {
@@ -85,6 +94,35 @@ public class KeybindCallbacks {
                 return false;
             }
             client.setScreen(new RouteListGui(null));
+            return true;
+        }
+    }
+
+    private static class RecordingToggleCallback implements IHotkeyCallback {
+        @Override
+        public boolean onKeyAction(KeyAction action, IKeybind key) {
+            if (action != KeyAction.PRESS) return false;
+            MinecraftClient client = MinecraftClient.getInstance();
+            if (client.player == null) return false;
+
+            InputRecorder rec = RecordingManager.getInstance().getRecorder();
+            if (rec.isRecording()) {
+                RecordingFile rf = rec.stopRecording();
+                RecordingManager.getInstance().addRecording(rf);
+            } else {
+                rec.startRecording(StringUtils.translate("playercontrolpp.gui.recording.new_recording"));
+            }
+            return true;
+        }
+    }
+
+    private static class OpenRecordingGuiCallback implements IHotkeyCallback {
+        @Override
+        public boolean onKeyAction(KeyAction action, IKeybind key) {
+            if (action != KeyAction.PRESS) return false;
+            MinecraftClient client = MinecraftClient.getInstance();
+            if (client.player == null) return false;
+            client.setScreen(new RecordingListGui(null));
             return true;
         }
     }

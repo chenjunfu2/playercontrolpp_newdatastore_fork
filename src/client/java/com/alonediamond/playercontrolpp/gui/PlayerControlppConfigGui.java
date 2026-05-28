@@ -1,6 +1,7 @@
 package com.alonediamond.playercontrolpp.gui;
 
 import com.alonediamond.playercontrolpp.config.Configs;
+import com.alonediamond.playercontrolpp.record.RecordingManager;
 import com.alonediamond.playercontrolpp.route.RouteManager;
 import fi.dy.masa.malilib.gui.GuiConfigsBase;
 import fi.dy.masa.malilib.gui.GuiConfigsBase.ConfigOptionWrapper;
@@ -66,7 +67,8 @@ public class PlayerControlppConfigGui extends GuiConfigsBase {
         HOTKEYS("playercontrolpp.gui.tab.hotkeys"),
         ROUTE_HOTKEYS("playercontrolpp.gui.tab.route_hotkeys"),
         SETTINGS("playercontrolpp.gui.tab.settings"),
-        ROUTES("playercontrolpp.gui.tab.routes");
+        ROUTES("playercontrolpp.gui.tab.routes"),
+        RECORDING("playercontrolpp.gui.tab.recording");
 
         private final String translationKey;
 
@@ -84,6 +86,8 @@ public class PlayerControlppConfigGui extends GuiConfigsBase {
         public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
             if (tab == ConfigGuiTab.ROUTES) {
                 MinecraftClient.getInstance().setScreen(new RouteListGui(parent));
+            } else if (tab == ConfigGuiTab.RECORDING) {
+                MinecraftClient.getInstance().setScreen(new RecordingListGui(parent));
             } else {
                 selectedTab = tab;
                 parent.getListWidget().refreshEntries();

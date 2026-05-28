@@ -43,11 +43,23 @@ public class Configs implements IConfigHandler {
                 KeybindSettings.PRESS_ALLOWEXTRA)
                 .apply("playercontrolpp.config.hotkeys");
 
+        public static final ConfigHotkey RECORDING_TOGGLE = new ConfigHotkey(
+                "recordingToggle", "",
+                KeybindSettings.PRESS_ALLOWEXTRA)
+                .apply("playercontrolpp.config.hotkeys");
+
+        public static final ConfigHotkey OPEN_RECORDING_GUI = new ConfigHotkey(
+                "openRecordingGui", "",
+                KeybindSettings.PRESS_ALLOWEXTRA)
+                .apply("playercontrolpp.config.hotkeys");
+
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
-                OPEN_CONFIG_GUI, AUTO_FORWARD, QUICK_TURN, OPEN_ROUTE_GUI);
+                OPEN_CONFIG_GUI, AUTO_FORWARD, QUICK_TURN, OPEN_ROUTE_GUI,
+                RECORDING_TOGGLE, OPEN_RECORDING_GUI);
 
         public static final List<IHotkey> HOTKEY_LIST = ImmutableList.of(
-                OPEN_CONFIG_GUI, AUTO_FORWARD, QUICK_TURN, OPEN_ROUTE_GUI);
+                OPEN_CONFIG_GUI, AUTO_FORWARD, QUICK_TURN, OPEN_ROUTE_GUI,
+                RECORDING_TOGGLE, OPEN_RECORDING_GUI);
     }
 
     public static class Settings {
@@ -55,8 +67,12 @@ public class Configs implements IConfigHandler {
                 "turnAngle", 180, 0, 360, false)
                 .apply("playercontrolpp.config.settings");
 
+        public static final ConfigInteger LAYER_INCREMENT = new ConfigInteger(
+                "layerIncrement", 1, 1, 64, false)
+                .apply("playercontrolpp.config.settings");
+
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
-                TURN_ANGLE);
+                TURN_ANGLE, LAYER_INCREMENT);
     }
 
     public static void loadFromFile() {
