@@ -15,13 +15,6 @@ public class RouteNode {
         this.z = z;
     }
 
-    public double squaredDistanceTo(double ox, double oy, double oz) {
-        double dx = x - ox;
-        double dy = y - oy;
-        double dz = z - oz;
-        return dx * dx + dy * dy + dz * dz;
-    }
-
     public JsonObject toJson() {
         JsonObject obj = new JsonObject();
         obj.addProperty("x", x);

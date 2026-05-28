@@ -66,6 +66,10 @@
   "playercontrolpp.gui.route.arrival_radius": "到达半径",
   "playercontrolpp.gui.route.loop_count": "循环次数",
   "playercontrolpp.gui.route.layer_increment": "图层增量",
+  "playercontrolpp.gui.route.sprint": "疾跑",
+  "playercontrolpp.gui.route.layerctrl": "图层控制",
+  "playercontrolpp.gui.route.on": "开",
+  "playercontrolpp.gui.route.off": "关",
   "playercontrolpp.gui.route.no_selection": "请在左侧选择一个路径进行编辑。",
 
   "playercontrolpp.gui.recording.title": "录制与回放",

@@ -66,6 +66,10 @@
   "playercontrolpp.gui.route.arrival_radius": "Arrival Radius",
   "playercontrolpp.gui.route.loop_count": "Loop Count",
   "playercontrolpp.gui.route.layer_increment": "Layer Inc",
+  "playercontrolpp.gui.route.sprint": "Sprint",
+  "playercontrolpp.gui.route.layerctrl": "LayerCtrl",
+  "playercontrolpp.gui.route.on": "ON",
+  "playercontrolpp.gui.route.off": "OFF",
   "playercontrolpp.gui.route.no_selection": "Select a route on the left to edit.",
 
   "playercontrolpp.gui.recording.title": "Recording & Playback",

@@ -19,8 +19,6 @@ public class RouteFlowRuntime {
 
     public boolean isForwardActive() { return forwardActive; }
 
-    public boolean isAnyRouteActive() { return forwardActive; }
-
     /**
      * Start a route. Returns false if the route has no dimension set and player is not in a world.
      */
@@ -106,14 +104,18 @@ public class RouteFlowRuntime {
             RouteExecutor executor = entry.getValue();
             executor.tick(client);
 
+            // Per-traversal layer increment: fires at each endpoint arrival,
+            // not just at route completion. For infinite loops (loopCount=0),
+            // this triggers continuously on every pass through the waypoints.
+            if (executor.getRoute().isLayerControlEnabled()
+                    && executor.consumeLayerIncrementPending()) {
+                LitematicaIntegration.incrementLayer(
+                        executor.getRoute().getLayerIncrement());
+            }
+
             switch (executor.getState()) {
                 case COMPLETED:
                     MessageUtil.sendActionBar(client, "playercontrolpp.message.route.completed");
-                    // Only increment Litematica layer if route has layer control enabled
-                    if (executor.getRoute().isLayerControlEnabled()) {
-                        LitematicaIntegration.incrementLayer(
-                                executor.getRoute().getLayerIncrement());
-                    }
                     toRemove.add(entry.getKey());
                     break;
                 case FAILED:

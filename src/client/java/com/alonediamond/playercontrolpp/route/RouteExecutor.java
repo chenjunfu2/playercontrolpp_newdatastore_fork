@@ -33,6 +33,7 @@ public class RouteExecutor {
     private int stuckTicks;
     private int postJumpTicks;
     private boolean jumpRequested;
+    private boolean layerIncrementPending; // set on boundary arrival for per-traversal layer change
     private Vec3d lastPosition = Vec3d.ZERO;
 
     public RouteExecutor(Route route) {
@@ -193,10 +194,12 @@ public class RouteExecutor {
 
         if (Math.abs(diff) < YAW_DEAD_ZONE) return;
 
-        // Smooth correction: faster for large angles, slower for small
+        // Tiered correction speed: aggressive snap for large yaw gaps (>45 deg),
+        // medium speed for moderate gaps (>15 deg), gentle for small corrections.
+        // This avoids overshooting while still turning quickly at waypoints.
         double speed = YAW_CORRECTION_SPEED;
         if (Math.abs(diff) > 45.0) {
-            speed = 25.0; // very fast for large deviations
+            speed = 25.0;
         } else if (Math.abs(diff) > 15.0) {
             speed = 18.0;
         }
@@ -217,15 +220,26 @@ public class RouteExecutor {
         }
 
         List<RouteNode> nodes = route.getNodes();
+
+        // Advance the waypoint index in current direction
         currentWPIndex += direction;
 
-        // Reverse at boundaries
+        // Reverse direction at endpoints of the waypoint list.
+        // This creates a back-and-forth (ping-pong) traversal pattern:
+        // start -> ... -> end -> ... -> start -> ...
         if (currentWPIndex >= nodes.size() - 1) {
             direction = -1;
             currentWPIndex = nodes.size() - 1;
         } else if (currentWPIndex <= 0) {
             direction = 1;
             currentWPIndex = 0;
+        }
+
+        // Fires once per full traversal (arriving at either endpoint).
+        // For loopCount=0 (infinite), this fires every time the player
+        // reaches an endpoint, enabling continuous per-pass layer changes.
+        if (currentWPIndex == 0 || currentWPIndex == nodes.size() - 1) {
+            layerIncrementPending = true;
         }
 
         int nextIdx = currentWPIndex + direction;
@@ -235,7 +249,7 @@ public class RouteExecutor {
         postJumpTicks = 0;
         jumpRequested = false;
 
-        // Snap yaw immediately to face the next target to avoid getting stuck on turns
+        // Snap yaw to face next target
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player != null) {
             snapYawToTarget(client, currentTarget);
@@ -243,6 +257,15 @@ public class RouteExecutor {
     }
 
     public boolean needsJump() { return jumpRequested; }
-
     public void clearJump() { jumpRequested = false; }
+
+    /** Atomic get-and-clear: returns true exactly once per pending increment,
+     *  preventing duplicate layer changes across multiple tick iterations. */
+    public boolean consumeLayerIncrementPending() {
+        if (layerIncrementPending) {
+            layerIncrementPending = false;
+            return true;
+        }
+        return false;
+    }
 }

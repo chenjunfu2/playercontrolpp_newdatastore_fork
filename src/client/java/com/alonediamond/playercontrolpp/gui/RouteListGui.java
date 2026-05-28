@@ -285,15 +285,16 @@ public class RouteListGui extends Screen {
                 tf.render(context, mouseX, mouseY, delta);
             }
 
-            // [Set] button
+            // [Set] button (i18n)
+            String setLabel = "[" + StringUtils.translate("playercontrolpp.gui.route.set_current") + "]";
             int setBtnX = zFieldX + FIELD_W + 8;
-            int setBtnW = textRenderer.getWidth("[Set]");
+            int setBtnW = textRenderer.getWidth(setLabel);
             int setColor = 0xFF55FFFF;
             if (mouseX >= setBtnX && mouseX <= setBtnX + setBtnW
                     && mouseY >= ry && mouseY <= ry + WPT_ROW_H) {
                 setColor = 0xFFFFFF55;
             }
-            context.drawTextWithShadow(textRenderer, Text.of("[Set]"), setBtnX, ry + 4, setColor);
+            context.drawTextWithShadow(textRenderer, Text.of(setLabel), setBtnX, ry + 4, setColor);
 
             // [X] button (intermediate only)
             int xBtnX = setBtnX + setBtnW + 8;
@@ -357,14 +358,18 @@ public class RouteListGui extends Screen {
         // Settings row 3: Sprint + LayerCtrl toggles
         int toggleY = ry + 4;
 
-        String sprintLabel = selectedRoute.isSprintEnabled()
-                ? "[Sprint: ON]" : "[Sprint: OFF]";
+        String sprintLabel = "[" + StringUtils.translate("playercontrolpp.gui.route.sprint") + ": "
+                + (selectedRoute.isSprintEnabled()
+                    ? StringUtils.translate("playercontrolpp.gui.route.on")
+                    : StringUtils.translate("playercontrolpp.gui.route.off")) + "]";
         int sprintW = textRenderer.getWidth(sprintLabel);
         int sprintColor = selectedRoute.isSprintEnabled() ? 0xFF55FF55 : 0xFF888888;
         context.drawTextWithShadow(textRenderer, Text.of(sprintLabel), RIGHT_X, toggleY, sprintColor);
 
-        String lcLabel = selectedRoute.isLayerControlEnabled()
-                ? "[LayerCtrl: ON]" : "[LayerCtrl: OFF]";
+        String lcLabel = "[" + StringUtils.translate("playercontrolpp.gui.route.layerctrl") + ": "
+                + (selectedRoute.isLayerControlEnabled()
+                    ? StringUtils.translate("playercontrolpp.gui.route.on")
+                    : StringUtils.translate("playercontrolpp.gui.route.off")) + "]";
         int lcW = textRenderer.getWidth(lcLabel);
         int lcX = RIGHT_X + sprintW + 20;
         int lcColor = selectedRoute.isLayerControlEnabled() ? 0xFF55FF55 : 0xFF888888;
