@@ -109,7 +109,7 @@ public class RouteFlowRuntime {
             // this triggers continuously on every pass through the waypoints.
             if (executor.getRoute().isLayerControlEnabled()
                     && executor.consumeLayerIncrementPending()) {
-                LitematicaIntegration.incrementLayer(
+                LitematicaIntegration.getInstance().incrementLayer(
                         executor.getRoute().getLayerIncrement());
             }
 

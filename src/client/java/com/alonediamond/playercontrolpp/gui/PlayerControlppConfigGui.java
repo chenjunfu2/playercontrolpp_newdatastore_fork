@@ -2,6 +2,7 @@ package com.alonediamond.playercontrolpp.gui;
 
 import com.alonediamond.playercontrolpp.config.Configs;
 import com.alonediamond.playercontrolpp.feature.AutoMaterialGatherer;
+import com.alonediamond.playercontrolpp.integration.QuickShulkerIntegration;
 import fi.dy.masa.malilib.config.IConfigBase;
 import com.alonediamond.playercontrolpp.record.RecordingManager;
 import com.alonediamond.playercontrolpp.route.RouteManager;
@@ -63,7 +64,13 @@ public class PlayerControlppConfigGui extends GuiConfigsBase {
             case BARITONE:
                 List<IConfigBase> baritoneOptions = new ArrayList<>();
                 baritoneOptions.add(Configs.Hotkeys.BARITONE_AUTO_GATHER);
-                baritoneOptions.addAll(Configs.BaritoneSettings.OPTIONS);
+                for (IConfigBase opt : Configs.BaritoneSettings.OPTIONS) {
+                    // Only show shulker storage mode when QuickShulker is installed
+                    if (opt == Configs.BaritoneSettings.SHULKER_STORAGE_MODE) {
+                        if (!QuickShulkerIntegration.getInstance().isLoaded()) continue;
+                    }
+                    baritoneOptions.add(opt);
+                }
                 return ConfigOptionWrapper.createFor(baritoneOptions);
             case ROUTES:
                 return Collections.emptyList();

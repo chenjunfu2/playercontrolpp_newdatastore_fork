@@ -1,34 +1,73 @@
 package com.alonediamond.playercontrolpp.integration;
 
 import fi.dy.masa.malilib.util.StringUtils;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
+
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Litematica integration via reflection.
  * Calls moveLayer() exactly as Litematica's PageUp/PageDown hotkeys do.
  */
-public class LitematicaIntegration {
+public class LitematicaIntegration implements ModIntegration {
 
-    private static boolean showActionBar = true;
+    private static final LitematicaIntegration INSTANCE = new LitematicaIntegration();
+    private boolean loaded;
+    private boolean showActionBar = true;
 
-    public static boolean isShowActionBar() { return showActionBar; }
-    public static void setShowActionBar(boolean show) { showActionBar = show; }
+    private LitematicaIntegration() {}
 
-    public static boolean incrementLayer(int amount) {
+    public static LitematicaIntegration getInstance() { return INSTANCE; }
+
+    @Override
+    public boolean isLoaded() { return loaded; }
+
+    @Override
+    public void initialize() {
+        loaded = FabricLoader.getInstance().isModLoaded("litematica");
+    }
+
+    public static boolean isShowActionBar() { return INSTANCE.showActionBar; }
+    public static void setShowActionBar(boolean show) { INSTANCE.showActionBar = show; }
+
+    /**
+     * Get Litematica's MaterialList via reflection.
+     */
+    public Object getMaterialList() {
+        try {
+            Class<?> dmClass = Class.forName("fi.dy.masa.litematica.data.DataManager");
+            return dmClass.getMethod("getMaterialList").invoke(null);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get Litematica's internal ignored-entries set via reflection.
+     */
+    @SuppressWarnings("unchecked")
+    public Set<Object> getIgnoredSet(Object materialList) {
+        try {
+            return (Set<Object>) materialList.getClass().getField("ignored").get(materialList);
+        } catch (Exception e) {
+            return Collections.emptySet();
+        }
+    }
+
+    public boolean incrementLayer(int amount) {
         if (amount == 0) return false;
 
         try {
-            // DataManager.getRenderLayerRange()
             Class<?> dmClass = Class.forName("fi.dy.masa.litematica.data.DataManager");
             Object range = dmClass.getMethod("getRenderLayerRange").invoke(null);
             if (range == null) return false;
 
-            // Only SINGLE_LAYER mode
             Object mode = range.getClass().getMethod("getLayerMode").invoke(range);
             if (!"SINGLE_LAYER".equals(((Enum<?>) mode).name())) return false;
 
-            // range.moveLayer(amount) — exactly what PageUp/PageDown triggers
             boolean ok = (Boolean) range.getClass()
                     .getMethod("moveLayer", int.class).invoke(range, amount);
             if (!ok) return false;

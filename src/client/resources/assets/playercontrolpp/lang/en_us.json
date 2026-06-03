@@ -117,7 +117,31 @@
   "playercontrolpp.config.baritone.name.enableGlobalIgnore": "Enable Global Material Ignore",
   "playercontrolpp.config.baritone.pretty_name.enableGlobalIgnore": "Enable Global Material Ignore",
   "playercontrolpp.config.baritone.comment.enableGlobalIgnore": "When enabled, items in the Global Ignore List will be skipped during auto-gathering.",
+  "playercontrolpp.config.baritone.name.autoStoreToShulker": "Auto Store to Shulker Box",
+  "playercontrolpp.config.baritone.pretty_name.autoStoreToShulker": "Auto Store to Shulker Box",
+  "playercontrolpp.config.baritone.comment.autoStoreToShulker": "When enabled, automatically store gathered building materials into shulker boxes when inventory is full, then resume auto-gathering.",
+
+  "playercontrolpp.config.baritone.name.shulkerStorageMode": "Shulker Storage Mode",
+  "playercontrolpp.config.baritone.pretty_name.shulkerStorageMode": "Shulker Storage Mode",
+  "playercontrolpp.config.baritone.comment.shulkerStorageMode": "How to store materials into shulker boxes.\nSimulate: place/open/mine the shulker box normally.\nQuickShulker: open directly from inventory via QuickShulker API (requires QuickShulker mod on both client and server).",
+
+  "playercontrolpp.config.baritone.storage_mode.simulate": "simulate",
+  "playercontrolpp.config.baritone.storage_mode.simulate.display_name": "Simulate Manual Place",
+  "playercontrolpp.config.baritone.storage_mode.quickshulker": "quickshulker",
+  "playercontrolpp.config.baritone.storage_mode.quickshulker.display_name": "Use QuickShulker",
+
   "playercontrolpp.config.baritone.name.globalIgnoreList": "Material Ignore List",
   "playercontrolpp.config.baritone.pretty_name.globalIgnoreList": "Material Ignore List",
-  "playercontrolpp.config.baritone.comment.globalIgnoreList": "Items to ignore during auto-gathering. Click to open the list editor. Default: minecraft:water_bucket."
+  "playercontrolpp.config.baritone.comment.globalIgnoreList": "Items to ignore during auto-gathering. Click to open the list editor. Default: minecraft:water_bucket + all shulker box variants.",
+
+  "playercontrolpp.message.baritone.shulker_store_start": "[PlayerControl++] Inventory full — storing materials to shulker box...",
+  "playercontrolpp.message.baritone.shulker_store_done": "[PlayerControl++] Shulker box storage complete, resuming gathering.",
+  "playercontrolpp.message.baritone.shulker_no_box": "[PlayerControl++] No usable shulker box found in inventory. Stopped.",
+  "playercontrolpp.message.baritone.shulker_no_position": "[PlayerControl++] No valid position to place shulker box. Stopped.",
+  "playercontrolpp.message.baritone.shulker_mine_failed": "[PlayerControl++] Failed to mine shulker box. Stopped.",
+  "playercontrolpp.message.baritone.shulker_resume": "[PlayerControl++] Inventory space freed, resuming auto-gathering.",
+  "playercontrolpp.message.baritone.shulker_box_full": "[PlayerControl++] Shulker box is full. Stopped.",
+  "playercontrolpp.message.baritone.shulker_place_failed": "[PlayerControl++] Failed to place shulker box. Stopped.",
+  "playercontrolpp.message.baritone.shulker_open_failed": "[PlayerControl++] Failed to open placed shulker box — aborting to prevent damage to surroundings.",
+  "playercontrolpp.message.baritone.shulker_pickup_failed": "[PlayerControl++] Shulker box not picked up within 5 seconds — stopping auto-gathering to prevent item loss."
 }

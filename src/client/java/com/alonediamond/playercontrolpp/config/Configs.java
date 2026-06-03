@@ -9,6 +9,7 @@ import fi.dy.masa.malilib.config.IConfigHandler;
 import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import fi.dy.masa.malilib.config.options.ConfigHotkey;
 import fi.dy.masa.malilib.config.options.ConfigInteger;
+import fi.dy.masa.malilib.config.options.ConfigOptionList;
 import fi.dy.masa.malilib.config.options.ConfigStringList;
 import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.malilib.hotkeys.KeybindSettings;
@@ -72,13 +73,42 @@ public class Configs implements IConfigHandler {
                 "When enabled, items in the Global Ignore List will be skipped during auto-gathering.")
                 .apply("playercontrolpp.config.baritone");
 
+        public static final ConfigBoolean AUTO_STORE_TO_SHULKER = new ConfigBoolean(
+                "autoStoreToShulker", false,
+                "When enabled, automatically store gathered building materials into shulker boxes when inventory is full, then resume auto-gathering.")
+                .apply("playercontrolpp.config.baritone");
+
+        public static final ConfigOptionList SHULKER_STORAGE_MODE = new ConfigOptionList(
+                "shulkerStorageMode", StorageMode.SIMULATE,
+                "How to store materials into shulker boxes.\nSimulate: place/open/mine the shulker box.\nQuickShulker: open directly from inventory via QuickShulker API.")
+                .apply("playercontrolpp.config.baritone");
+
         public static final ConfigStringList GLOBAL_IGNORE_LIST = new ConfigStringList(
-                "globalIgnoreList", ImmutableList.of("minecraft:water_bucket"),
+                "globalIgnoreList", ImmutableList.of(
+                        "minecraft:water_bucket",
+                        "minecraft:shulker_box",
+                        "minecraft:white_shulker_box",
+                        "minecraft:orange_shulker_box",
+                        "minecraft:magenta_shulker_box",
+                        "minecraft:light_blue_shulker_box",
+                        "minecraft:yellow_shulker_box",
+                        "minecraft:lime_shulker_box",
+                        "minecraft:pink_shulker_box",
+                        "minecraft:gray_shulker_box",
+                        "minecraft:light_gray_shulker_box",
+                        "minecraft:cyan_shulker_box",
+                        "minecraft:purple_shulker_box",
+                        "minecraft:blue_shulker_box",
+                        "minecraft:brown_shulker_box",
+                        "minecraft:green_shulker_box",
+                        "minecraft:red_shulker_box",
+                        "minecraft:black_shulker_box"
+                ),
                 "Item IDs to ignore during auto-gathering. Edit via the GUI button or click to open the list editor.")
                 .apply("playercontrolpp.config.baritone");
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
-                ENABLE_GLOBAL_IGNORE, GLOBAL_IGNORE_LIST);
+                ENABLE_GLOBAL_IGNORE, AUTO_STORE_TO_SHULKER, SHULKER_STORAGE_MODE, GLOBAL_IGNORE_LIST);
     }
 
     public static void loadFromFile() {

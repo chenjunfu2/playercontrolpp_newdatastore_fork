@@ -3,6 +3,10 @@ package com.alonediamond.playercontrolpp.config;
 import com.alonediamond.playercontrolpp.event.ClientEventHandler;
 import com.alonediamond.playercontrolpp.input.KeybindCallbacks;
 import com.alonediamond.playercontrolpp.input.KeybindProvider;
+import com.alonediamond.playercontrolpp.integration.BaritoneIntegration;
+import com.alonediamond.playercontrolpp.integration.ChestTrackerIntegration;
+import com.alonediamond.playercontrolpp.integration.LitematicaIntegration;
+import com.alonediamond.playercontrolpp.integration.QuickShulkerIntegration;
 import com.alonediamond.playercontrolpp.record.RecordingManager;
 import com.alonediamond.playercontrolpp.route.RouteManager;
 import fi.dy.masa.malilib.config.ConfigManager;
@@ -24,6 +28,12 @@ public class InitHandler implements IInitializationHandler {
         RouteManager.getInstance().loadRoutes();
         RouteManager.getInstance().registerAllKeybinds();
         RecordingManager.getInstance().loadRecordings();
+
+        // Initialize mod integrations (reflection-based, all optional)
+        LitematicaIntegration.getInstance().initialize();
+        BaritoneIntegration.getInstance().initialize();
+        ChestTrackerIntegration.getInstance().initialize();
+        QuickShulkerIntegration.getInstance().initialize();
     }
 
     public static void register() {

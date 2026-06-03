@@ -117,7 +117,31 @@
   "playercontrolpp.config.baritone.name.enableGlobalIgnore": "启用全局材料忽略",
   "playercontrolpp.config.baritone.pretty_name.enableGlobalIgnore": "启用全局材料忽略",
   "playercontrolpp.config.baritone.comment.enableGlobalIgnore": "开启后，全局忽略列表中的材料将不会被自动备货系统收集。",
+  "playercontrolpp.config.baritone.name.autoStoreToShulker": "材料自动存入潜影盒",
+  "playercontrolpp.config.baritone.pretty_name.autoStoreToShulker": "材料自动存入潜影盒",
+  "playercontrolpp.config.baritone.comment.autoStoreToShulker": "开启后，当背包满时自动将已收集的建筑材料存入潜影盒以释放空间，随后继续自动备货。",
+
+  "playercontrolpp.config.baritone.name.shulkerStorageMode": "材料存入潜影盒逻辑",
+  "playercontrolpp.config.baritone.pretty_name.shulkerStorageMode": "材料存入潜影盒逻辑",
+  "playercontrolpp.config.baritone.comment.shulkerStorageMode": "材料存入潜影盒的方式。\n模拟手动放置：正常放置/打开/挖掘潜影盒。\n调用QuickShulker：通过 QuickShulker API 直接从背包打开（需客户端和服务端均安装 QuickShulker）。",
+
+  "playercontrolpp.config.baritone.storage_mode.simulate": "simulate",
+  "playercontrolpp.config.baritone.storage_mode.simulate.display_name": "模拟手动放置潜影盒",
+  "playercontrolpp.config.baritone.storage_mode.quickshulker": "quickshulker",
+  "playercontrolpp.config.baritone.storage_mode.quickshulker.display_name": "调用QuickShulker",
+
   "playercontrolpp.config.baritone.name.globalIgnoreList": "材料备货忽略项",
   "playercontrolpp.config.baritone.pretty_name.globalIgnoreList": "材料备货忽略项",
-  "playercontrolpp.config.baritone.comment.globalIgnoreList": "自动备货时忽略的物品列表。点击打开列表编辑器。默认：minecraft:water_bucket。"
+  "playercontrolpp.config.baritone.comment.globalIgnoreList": "自动备货时忽略的物品列表。点击打开列表编辑器。默认：minecraft:water_bucket 及所有潜影盒变种。",
+
+  "playercontrolpp.message.baritone.shulker_store_start": "[PlayerControl++] 背包已满 — 正在将材料存入潜影盒...",
+  "playercontrolpp.message.baritone.shulker_store_done": "[PlayerControl++] 潜影盒存储完成，继续备货。",
+  "playercontrolpp.message.baritone.shulker_no_box": "[PlayerControl++] 背包中未找到可用潜影盒。已停止。",
+  "playercontrolpp.message.baritone.shulker_no_position": "[PlayerControl++] 未找到合法的潜影盒放置位置。已停止。",
+  "playercontrolpp.message.baritone.shulker_mine_failed": "[PlayerControl++] 挖掘潜影盒失败。已停止。",
+  "playercontrolpp.message.baritone.shulker_resume": "[PlayerControl++] 背包空间已释放，继续自动备货。",
+  "playercontrolpp.message.baritone.shulker_box_full": "[PlayerControl++] 潜影盒已满。已停止。",
+  "playercontrolpp.message.baritone.shulker_place_failed": "[PlayerControl++] 潜影盒放置失败。已停止。",
+  "playercontrolpp.message.baritone.shulker_open_failed": "[PlayerControl++] 未能打开已放置的潜影盒 — 中止以防止破坏周围方块。",
+  "playercontrolpp.message.baritone.shulker_pickup_failed": "[PlayerControl++] 5秒内未拾取到潜影盒 — 停止自动备货以防止物品丢失。"
 }
