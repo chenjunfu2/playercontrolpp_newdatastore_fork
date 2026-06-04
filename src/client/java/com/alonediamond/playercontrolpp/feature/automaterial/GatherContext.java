@@ -54,6 +54,10 @@ public class GatherContext {
     // If true and inventory becomes full, skip auto-store-to-shulker.
     public boolean justTookShulkerBox;
 
+    // Global counters for the current item — compare against TransferPlan to avoid over-gathering
+    public int totalBoxesTakenForItem;
+    public int totalStacksTakenForItem;
+
     public void reset() {
         state = AutoMaterialGatherer.State.IDLE;
         chestRetryCount = 0;
@@ -78,5 +82,7 @@ public class GatherContext {
         stacksTakenThisContainer.clear();
         shulkerBoxesTakenThisContainer.clear();
         justTookShulkerBox = false;
+        totalBoxesTakenForItem = 0;
+        totalStacksTakenForItem = 0;
     }
 }

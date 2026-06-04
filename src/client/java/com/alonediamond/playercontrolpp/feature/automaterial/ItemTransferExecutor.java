@@ -40,6 +40,8 @@ public class ItemTransferExecutor {
      */
     public void nextItem(GatherContext ctx, TaskStateMachine tsm) {
         ctx.justTookShulkerBox = false;
+        ctx.totalBoxesTakenForItem = 0;
+        ctx.totalStacksTakenForItem = 0;
 
         if (ctx.currentItemIndex >= ctx.missingItems.size()) {
             tsm.setState(State.COMPLETED);
@@ -96,48 +98,23 @@ public class ItemTransferExecutor {
         }
 
         java.util.List<Slot> slots = handler.slots;
-        boolean transferred = false;
 
-        // Phase 1a: Loose items first
-        for (int i = 0; i < slots.size(); i++) {
-            Slot slot = slots.get(i);
-            if (slot.inventory == mc.player.getInventory()) continue;
-            ItemStack stack = slot.getStack();
-            if (stack.isEmpty() || isShulkerBox(stack)) continue;
+        // When the strategy says we need whole shulker boxes, try Phase 1b first
+        // to avoid filling inventory with individual stacks.
+        boolean boxesFirst = ctx.currentTransferPlan.shulkerBoxes > 0
+                && ctx.totalBoxesTakenForItem < ctx.currentTransferPlan.shulkerBoxes;
 
-            MaterialItemEntry matchedEntry = findMatchingMissingItem(stack, ctx);
-            if (matchedEntry == null) continue;
-
-            if (tryTransferLoose(mc, handler, slot, matchedEntry, ctx)) {
-                ctx.transferCooldown = 4;
-                return;
-            }
+        if (boxesFirst) {
+            if (tryTransferShulkerBoxesFirst(mc, handler, slots, ctx)) return;
+            if (tryTransferLooseItems(mc, handler, slots, ctx)) return;
+        } else {
+            if (tryTransferLooseItems(mc, handler, slots, ctx)) return;
+            if (tryTransferShulkerBoxesFirst(mc, handler, slots, ctx)) return;
         }
 
-        // Phase 1b: Shulker boxes — only if verified to contain needed items
-        for (int i = 0; i < slots.size(); i++) {
-            Slot slot = slots.get(i);
-            if (slot.inventory == mc.player.getInventory()) continue;
-            ItemStack stack = slot.getStack();
-            if (stack.isEmpty() || !isShulkerBox(stack)) continue;
-
-            if (!shulkerBoxContainsAnyMissingItem(stack, ctx)) continue;
-
-            MaterialItemEntry bestEntry = findBestMissingItemForShulker(stack, ctx);
-            if (bestEntry == null) continue;
-
-            if (tryTransferShulker(mc, handler, slot, bestEntry, ctx)) {
-                ctx.justTookShulkerBox = true;
-                ctx.transferCooldown = 4;
-                return;
-            }
-        }
-
-        if (!transferred) {
-            mc.player.closeHandledScreen();
-            ctx.transferCooldown = 8;
-            tsm.setState(State.VERIFYING);
-        }
+        mc.player.closeHandledScreen();
+        ctx.transferCooldown = 8;
+        tsm.setState(State.VERIFYING);
     }
 
     /**
@@ -182,6 +159,52 @@ public class ItemTransferExecutor {
 
     // --- Helper methods ---
 
+    /**
+     * Phase 1b (maybe first): Transfer whole shulker boxes containing needed items.
+     * Respects the global box limit from currentTransferPlan.
+     */
+    private boolean tryTransferShulkerBoxesFirst(MinecraftClient mc, ScreenHandler handler,
+                                                  java.util.List<Slot> slots, GatherContext ctx) {
+        for (int i = 0; i < slots.size(); i++) {
+            Slot slot = slots.get(i);
+            if (slot.inventory == mc.player.getInventory()) continue;
+            ItemStack stack = slot.getStack();
+            if (stack.isEmpty() || !isShulkerBox(stack)) continue;
+            if (!shulkerBoxContainsAnyMissingItem(stack, ctx)) continue;
+            MaterialItemEntry bestEntry = findBestMissingItemForShulker(stack, ctx);
+            if (bestEntry == null) continue;
+            if (tryTransferShulker(mc, handler, slot, bestEntry, ctx)) {
+                ctx.justTookShulkerBox = true;
+                ctx.transferCooldown = 4;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Phase 1a (maybe second): Transfer loose stacks of needed items.
+     * Respects the global stack limit from currentTransferPlan.
+     */
+    private boolean tryTransferLooseItems(MinecraftClient mc, ScreenHandler handler,
+                                           java.util.List<Slot> slots, GatherContext ctx) {
+        for (int i = 0; i < slots.size(); i++) {
+            Slot slot = slots.get(i);
+            if (slot.inventory == mc.player.getInventory()) continue;
+            ItemStack stack = slot.getStack();
+            if (stack.isEmpty() || isShulkerBox(stack)) continue;
+
+            MaterialItemEntry matchedEntry = findMatchingMissingItem(stack, ctx);
+            if (matchedEntry == null) continue;
+
+            if (tryTransferLoose(mc, handler, slot, matchedEntry, ctx)) {
+                ctx.transferCooldown = 4;
+                return true;
+            }
+        }
+        return false;
+    }
+
     private MaterialItemEntry findMatchingMissingItem(ItemStack stack, GatherContext ctx) {
         for (MaterialItemEntry entry : ctx.missingItems) {
             if (itemsMatch(stack, entry.item)) {
@@ -222,6 +245,7 @@ public class ItemTransferExecutor {
             mc.interactionManager.clickSlot(handler.syncId, slot.id, 0,
                     SlotActionType.QUICK_MOVE, mc.player);
             ctx.stacksTakenThisContainer.put(entry.item, taken + 1);
+            ctx.totalStacksTakenForItem++;
             return true;
         } catch (Exception e) {
             return false;
@@ -233,10 +257,20 @@ public class ItemTransferExecutor {
         int needed = entry.neededCount - have;
         if (needed <= 0) return false;
 
+        // Respect global box limit from transfer plan
+        int planBoxes = ctx.currentTransferPlan.shulkerBoxes;
+        if (planBoxes > 0 && ctx.totalBoxesTakenForItem >= planBoxes) return false;
+
         int taken = ctx.shulkerBoxesTakenThisContainer.getOrDefault(entry.item, 0);
         int stackSize = entry.maxStackSize > 0 ? entry.maxStackSize : 64;
         int shulkerCap = 27 * stackSize;
         int maxBoxes = (needed + shulkerCap - 1) / shulkerCap;
+
+        // Cap at remaining plan boxes
+        if (planBoxes > 0) {
+            int remainingPlan = planBoxes - ctx.totalBoxesTakenForItem;
+            if (remainingPlan < maxBoxes) maxBoxes = remainingPlan;
+        }
 
         if (taken >= maxBoxes) return false;
 
@@ -244,6 +278,7 @@ public class ItemTransferExecutor {
             mc.interactionManager.clickSlot(handler.syncId, slot.id, 0,
                     SlotActionType.QUICK_MOVE, mc.player);
             ctx.shulkerBoxesTakenThisContainer.put(entry.item, taken + 1);
+            ctx.totalBoxesTakenForItem++;
             return true;
         } catch (Exception e) {
             return false;

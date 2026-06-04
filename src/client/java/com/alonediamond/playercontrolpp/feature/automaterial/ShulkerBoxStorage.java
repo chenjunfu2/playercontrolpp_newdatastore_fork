@@ -149,6 +149,10 @@ public class ShulkerBoxStorage {
                 active = false;
                 return StorageResult.DONE;
         }
+        // If a state handler set a terminal result, propagate it immediately
+        if (!active && terminalResult != StorageResult.ACTIVE) {
+            return terminalResult;
+        }
         return StorageResult.ACTIVE;
     }
 
@@ -262,7 +266,7 @@ public class ShulkerBoxStorage {
         retryCount++;
         if (retryCount >= 3) {
             MessageUtil.sendActionBar(mc, "playercontrolpp.message.baritone.shulker_no_position");
-            active = false;
+            fail(mc);
             return;
         }
         // Look down and wait a moment, then retry
@@ -291,7 +295,7 @@ public class ShulkerBoxStorage {
     }
 
     private void doPlace(MinecraftClient mc) {
-        if (placedPos == null || placeAgainst == null) { active = false; return; }
+        if (placedPos == null || placeAgainst == null) { fail(mc); return; }
 
         // Verify the shulker box actually got placed
         if (retryCount == 0) {
@@ -339,7 +343,7 @@ public class ShulkerBoxStorage {
     }
 
     private void doOpen(MinecraftClient mc) {
-        if (placedPos == null) { active = false; return; }
+        if (placedPos == null) { fail(mc); return; }
 
         // Face and open the placed shulker box
         faceToward(mc, Vec3d.ofCenter(placedPos));
@@ -396,14 +400,19 @@ public class ShulkerBoxStorage {
 
         if (isShulkerBoxFull()) {
             mc.player.closeHandledScreen();
+            knownFullSlots.add(shulkerSlotIndex);
             if (!anyItemsTransferred) {
-                knownFullSlots.add(shulkerSlotIndex);
+                // Check if any remaining candidate boxes exist before looping back
+                if (!hasCandidateShulker(mc, ctx)) {
+                    MessageUtil.sendActionBar(mc, "playercontrolpp.message.baritone.shulker_no_box");
+                    fail(mc);
+                    return;
+                }
                 cooldown = 3;
                 state = StorageState.FINDING_SHULKER;
                 anyItemsTransferred = false;
                 return;
             }
-            knownFullSlots.add(shulkerSlotIndex);
             state = StorageState.CLOSING;
             return;
         }
@@ -494,7 +503,7 @@ public class ShulkerBoxStorage {
             mc.options.attackKey.setPressed(false);
             mc.player.getInventory().selectedSlot = prevSelectedSlot;
             MessageUtil.sendActionBar(mc, "playercontrolpp.message.baritone.shulker_mine_failed");
-            active = false;
+            fail(mc);
         }
     }
 
@@ -522,6 +531,23 @@ public class ShulkerBoxStorage {
     }
 
     // ---- Helpers ----
+
+    /**
+     * Check if there is any usable shulker box that hasn't been marked full
+     * and that isn't on the missing list. Used to avoid cycling through
+     * already-known-full boxes.
+     */
+    private boolean hasCandidateShulker(MinecraftClient mc, GatherContext ctx) {
+        if (mc.player == null) return false;
+        for (int i = 0; i < 36; i++) {
+            if (knownFullSlots.contains(i)) continue;
+            ItemStack stack = mc.player.getInventory().getStack(i);
+            if (stack.isEmpty() || !isShulkerBox(stack)) continue;
+            if (isOnMissingList(stack, ctx)) continue;
+            return true;
+        }
+        return false;
+    }
 
     private void abort(MinecraftClient mc) {
         mc.options.attackKey.setPressed(false);
