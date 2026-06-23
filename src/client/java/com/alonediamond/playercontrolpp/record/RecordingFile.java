@@ -2,14 +2,26 @@ package com.alonediamond.playercontrolpp.record;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Recording data model. Index metadata (id, name, highPrecision, durationTicks, dimension)
- * is stored in index.json and always loaded. Segments and keyframes are stored in individual
- * recording files and only loaded on demand for playback.
+ * Recording data model. Metadata (id, name, highPrecision, durationTicks, dimension)
+ * is stored in index.nbt and always loaded. Segments and keyframes are stored as
+ * columnar arrays inside individual recording NBT files and only loaded on demand
+ * for playback.
+ *
+ * <p>NBT recording file structure (record_XXX.nbt):</p>
+ * <pre>
+ *   id, name, hp, ticks, dim, sX, sY, sZ, sYaw, sPitch   — key-value metadata
+ *   segDur (IntArray), segFlags (ByteArray),
+ *   segMove (LongArray), segRot (LongArray)                — columnar segments
+ *   kfTick (IntArray), kfX, kfY, kfZ (LongArray)          — HP keyframes (optional)
+ * </pre>
  */
 public class RecordingFile {
     private String id;
@@ -65,18 +77,78 @@ public class RecordingFile {
     /** Number of segments (RLE-compressed units). */
     public int getSegmentCount() { return segments.size(); }
 
-    // --- Index JSON (lightweight, for index.json) ---
+    // ======================== NBT Index (lightweight, for index.nbt) ========================
 
-    public JsonObject toIndexJson() {
-        JsonObject obj = new JsonObject();
-        obj.addProperty("id", id);
-        obj.addProperty("name", name);
-        obj.addProperty("highPrecision", highPrecision);
-        obj.addProperty("durationTicks", durationTicks);
-        obj.addProperty("dimension", dimension);
-        return obj;
+    public NbtCompound toIndexNbt() {
+        NbtCompound nbt = new NbtCompound();
+        nbt.putString("id", id != null ? id : "");
+        nbt.putString("name", name != null ? name : "");
+        nbt.putBoolean("hp", highPrecision);
+        nbt.putInt("ticks", durationTicks);
+        nbt.putString("dim", dimension != null ? dimension : "");
+        return nbt;
     }
 
+    public static RecordingFile fromIndexNbt(NbtCompound nbt) {
+        RecordingFile rf = new RecordingFile();
+        if (nbt.contains("id"))   rf.setId(nbt.getString("id"));
+        if (nbt.contains("name")) rf.setName(nbt.getString("name"));
+        if (nbt.contains("hp"))   rf.setHighPrecision(nbt.getBoolean("hp"));
+        if (nbt.contains("ticks")) rf.setDurationTicks(nbt.getInt("ticks"));
+        if (nbt.contains("dim"))  rf.setDimension(nbt.getString("dim"));
+        return rf;
+    }
+
+    // ======================= NBT Full (for individual recording files) =======================
+
+    public NbtCompound toNbt() {
+        NbtCompound nbt = toIndexNbt();
+
+        nbt.putDouble("sX", startX);
+        nbt.putDouble("sY", startY);
+        nbt.putDouble("sZ", startZ);
+        nbt.putFloat("sYaw", startYaw);
+        nbt.putFloat("sPitch", startPitch);
+
+        // Segments: columnar arrays inside a child compound
+        if (!segments.isEmpty()) {
+            nbt.put("segs", RecordedSegment.packToNbt(segments));
+        }
+
+        // Keyframes: columnar arrays directly in root (HP mode only)
+        if (highPrecision && !keyframes.isEmpty()) {
+            PositionKeyframe.packToNbt(nbt, keyframes);
+        }
+
+        return nbt;
+    }
+
+    public static RecordingFile fromNbt(NbtCompound nbt) {
+        RecordingFile rf = fromIndexNbt(nbt);
+
+        if (nbt.contains("sX")) rf.setStartX(nbt.getDouble("sX"));
+        if (nbt.contains("sY")) rf.setStartY(nbt.getDouble("sY"));
+        if (nbt.contains("sZ")) rf.setStartZ(nbt.getDouble("sZ"));
+        if (nbt.contains("sYaw")) rf.setStartYaw(nbt.getFloat("sYaw"));
+        if (nbt.contains("sPitch")) rf.setStartPitch(nbt.getFloat("sPitch"));
+
+        // Segments: unpack from the "segs" child compound
+        NbtElement segsElem = nbt.get("segs");
+        if (segsElem instanceof NbtCompound segsCompound) {
+            rf.segments = RecordedSegment.unpackFromNbt(segsCompound);
+        }
+
+        // Keyframes: unpack from root-level columnar arrays (HP mode)
+        if (rf.isHighPrecision() && nbt.contains("kfTick")) {
+            rf.keyframes = PositionKeyframe.unpackFromNbt(nbt);
+        }
+
+        return rf;
+    }
+
+    // ==================== JSON backward compat (read only) ====================
+
+    /** Read index metadata from old index.json format. */
     public static RecordingFile fromIndexJson(JsonObject obj) {
         RecordingFile rf = new RecordingFile();
         if (obj.has("id")) rf.setId(obj.get("id").getAsString());
@@ -87,32 +159,7 @@ public class RecordingFile {
         return rf;
     }
 
-    // --- Full JSON (for individual recording files) ---
-
-    public JsonObject toFullJson() {
-        JsonObject obj = toIndexJson();
-        obj.addProperty("startX", startX);
-        obj.addProperty("startY", startY);
-        obj.addProperty("startZ", startZ);
-        obj.addProperty("startYaw", startYaw);
-        obj.addProperty("startPitch", startPitch);
-
-        JsonArray segArr = new JsonArray();
-        for (RecordedSegment seg : segments) {
-            segArr.add(seg.toJson());
-        }
-        obj.add("segments", segArr);
-
-        if (highPrecision && !keyframes.isEmpty()) {
-            JsonArray kfArr = new JsonArray();
-            for (PositionKeyframe kf : keyframes) {
-                kfArr.add(kf.toJson());
-            }
-            obj.add("keyframes", kfArr);
-        }
-        return obj;
-    }
-
+    /** Read full recording data from old record_XXX.json format. */
     public static RecordingFile fromFullJson(JsonObject obj) {
         RecordingFile rf = fromIndexJson(obj);
         if (obj.has("startX")) rf.setStartX(obj.get("startX").getAsDouble());
