@@ -100,7 +100,7 @@ public class RecordingManager {
     /** Load index.nbt (new format since v1.4). */
     private void loadIndexNbt(Path file) {
         try {
-            Optional<NbtCompound> opt = NbtIo.readCompressed(file, NbtSizeTracker.ofUnlimitedBytes());
+            Optional<NbtCompound> opt = Optional.ofNullable(NbtIo.readCompressed(file, NbtSizeTracker.ofUnlimitedBytes()));
             if (opt.isEmpty()) return;
             NbtCompound root = opt.get();
             NbtElement listElem = root.get("list");
@@ -208,7 +208,7 @@ public class RecordingManager {
         Path nbtFile = getRecordingFile(id);
         if (Files.exists(nbtFile) && !Files.isDirectory(nbtFile)) {
             try {
-                Optional<NbtCompound> opt = NbtIo.readCompressed(nbtFile, NbtSizeTracker.ofUnlimitedBytes());
+                Optional<NbtCompound> opt = Optional.ofNullable(NbtIo.readCompressed(nbtFile, NbtSizeTracker.ofUnlimitedBytes()));
                 if (opt.isPresent()) {
                     return RecordingFile.fromNbt(opt.get());
                 }
